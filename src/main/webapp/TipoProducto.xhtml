@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Created by IntelliJ IDEA.
+  User: user
+  Date: 26/10/24
+  Time: 23:30
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+
+<h:head>
+    <title>TIPO PRODUCTO</title>
+</h:head>
+
+<h:body>
+    <p:outputLabel value="TipoProducto"/>
+    <h:form id="frmTabla">
+        <p:dataTable value="#{frmTipoProducto.modelo}" var="r"
+                     lazy="true"
+                     paginator="true"
+                     rows="5"
+                     first="0"
+                     selectionMode="single"
+                     selection="#{frmTipoProducto.registro}"
+                     rendered="#{empty frmTipoProducto.registro}"
+        >
+            <p:ajax process="@this" update=":pnlDetalle @form" event="rowSelect"
+                    listener="#{frmTipoProducto.selecionarFila}"/>
+            <p:column headerText="ID"><h:outputText value="#{r.idTipoProducto}"/></p:column>
+            <p:column headerText="NOMBRE"><h:outputText value="#{r.nombre}"/></p:column>
+            <p:column headerText="ACTIVO"><h:outputText value="#{r.activo}"/></p:column>
+            <p:column headerText="COMENTARIOS"><h:outputText value="#{r.comentarios}"/></p:column>
+
+        </p:dataTable>
+        <h:panelGrid columns="2">
+            <p:commandButton value="CANCELAR" rendered="#{frmTipoProducto.estado ne 'NINGUNO'}"
+                             update=":pnlDetalle @form" actionListener="#{frmTipoProducto.btnCancelarHandler}"/>
+            <p:commandButton value="NUEVO" update=":pnlDetalle @form"
+                             actionListener="#{frmTipoProducto.btnNuevoHandler}"/>
+        </h:panelGrid>
+        <p:growl id="growl" showDetail="true" sticky="false" life="1500"/>
+    </h:form>
+
+    <h:panelGroup id="pnlDetalle">
+        <h:form rendered="#{not empty frmTipoProducto.registro}" id="frmDetalle">
+            <h:panelGrid columns="2">
+                <p:outputLabel value="ID" for="txtid"/>
+                <p:inputText id="txtid" value="#{frmTipoProducto.registro.idTipoProducto}" readonly="true"
+                             disabled="true"/>
+
+                <p:outputLabel value="Nombre" for="txtNombre"/>
+                <p:inputText id="txtNombre" value="#{frmTipoProducto.registro.nombre}" size="70"/>
+
+                <p:outputLabel value="Nombre" for="chkActivo"/>
+                <p:selectBooleanCheckbox id="chkActivo" value="#{frmTipoProducto.registro.activo}" size="70"/>
+
+                <p:outputLabel value="Descripcion" for="txtDescripcion"/>
+                <p:inputText id="txtDescripcion" value="#{frmTipoProducto.registro.comentarios}" size="70"/>
+
+
+            </h:panelGrid>
+            <h:panelGrid columns="3">
+                <p:commandButton value="GUARDAR" rendered="#{frmTipoProducto.estado=='CREAR'}"
+                                 update=":frmTabla  :pnlDetalle @form"
+                                 actionListener="#{frmTipoProducto.btnGuardarHandler}"/>
+                <p:commandButton value="MODIFICAR" rendered="#{frmTipoProducto.estado=='MODIFICAR'}"
+                                 update=":frmTabla :pnlDetalle @form"
+                                 actionListener="#{frmTipoProducto.btnModificarHandler}"/>
+                <p:commandButton value="ELIMINAR" rendered="#{frmTipoProducto.estado=='MODIFICAR'}"
+                                 update=":frmTabla  :pnlDetalle @form"
+                                 actionListener="#{frmTipoProducto.btneEliminarHandler}"/>
+            </h:panelGrid>
+        </h:form>
+    </h:panelGroup>
+</h:body>
+
+</html>

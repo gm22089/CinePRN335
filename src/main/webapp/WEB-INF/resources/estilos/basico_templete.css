@@ -1,0 +1,14 @@
+body {
+    background: #857d71;
+    color: aliceblue;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin: 0 auto;
+
+}
+
+h1 {
+    text-align: center;
+    color: #ffff;
+}

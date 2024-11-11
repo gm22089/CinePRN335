@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Created by IntelliJ IDEA.
+  User: user
+  Date: 26/10/24
+  Time: 23:29
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+
+<h:head>
+    <title>TIPO PELICULA</title>
+</h:head>
+
+<h:body>
+    <p:outputLabel value="TipoPelicula"/>
+    <h:form id="frmTabla">
+        <p:dataTable value="#{frmTipoPelicula.modelo}" var="r"
+                     lazy="true"
+                     paginator="true"
+                     rows="5"
+                     first="0"
+                     selectionMode="single"
+                     selection="#{frmTipoPelicula.registro}"
+                     rendered="#{empty frmTipoPelicula.registro}"
+        >
+            <p:ajax process="@this" update=":pnlDetalle @form" event="rowSelect"
+                    listener="#{frmTipoPelicula.selecionarFila}"/>
+            <p:column headerText="ID"><h:outputText value="#{r.idTipoPelicula}"/></p:column>
+            <p:column headerText="NOMBRE"><h:outputText value="#{r.nombre}"/></p:column>
+            <p:column headerText="ACTIVO"><h:outputText value="#{r.activo?'ACTIVO':'INACTIVO'}"/></p:column>
+            <p:column headerText="COMENTARIOS"><h:outputText value="#{r.comentarios}"/></p:column>
+            <p:column headerText="expresionRegular"><h:outputText value="#{r.expresionRegular}"/></p:column>
+
+        </p:dataTable>
+        <h:panelGrid columns="2">
+            <p:commandButton value="CANCELAR" rendered="#{frmTipoPelicula.estado ne 'NINGUNO'}"
+                             update=":pnlDetalle @form" actionListener="#{frmTipoPelicula.btnCancelarHandler}"/>
+            <p:commandButton value="NUEVO" update=":pnlDetalle @form"
+                             actionListener="#{frmTipoPelicula.btnNuevoHandler}"/>
+        </h:panelGrid>
+        <p:growl id="growl" showDetail="true" sticky="false" life="1500"/>
+    </h:form>
+
+    <h:panelGroup id="pnlDetalle">
+        <h:form rendered="#{not empty frmTipoPelicula.registro}" id="frmDetalle">
+            <h:panelGrid columns="2">
+                <p:outputLabel value="ID" for="txtid"/>
+                <p:inputText id="txtid" value="#{frmTipoPelicula.registro.idTipoPelicula}" readonly="true"
+                             disabled="true"/>
+
+                <p:outputLabel value="Nombre" for="txtNombre"/>
+                <p:inputText id="txtNombre" value="#{frmTipoPelicula.registro.nombre}" size="70"/>
+
+                <p:outputLabel value="Nombre" for="chkActivo"/>
+                <p:selectBooleanCheckbox id="chkActivo" value="#{frmTipoPelicula.registro.activo}" size="70"/>
+
+                <p:outputLabel value="Comentarios" for="txtComentarios"/>
+                <p:inputText id="txtComentarios" value="#{frmTipoPelicula.registro.comentarios}" size="70"/>
+
+                <p:outputLabel value="expresionRegular" for="txtExpresionRegular"/>
+                <p:inputText id="txtExpresionRegular" value="#{frmTipoPelicula.registro.expresionRegular}" size="70"/>
+
+
+            </h:panelGrid>
+            <h:panelGrid columns="3">
+                <p:commandButton value="GUARDAR" rendered="#{frmTipoPelicula.estado=='CREAR'}"
+                                 update=":frmTabla  :pnlDetalle @form"
+                                 actionListener="#{frmTipoPelicula.btnGuardarHandler}"/>
+                <p:commandButton value="MODIFICAR" rendered="#{frmTipoPelicula.estado=='MODIFICAR'}"
+                                 update=":frmTabla :pnlDetalle @form"
+                                 actionListener="#{frmTipoPelicula.btnModificarHandler}"/>
+                <p:commandButton value="ELIMINAR" rendered="#{frmTipoPelicula.estado=='MODIFICAR'}"
+                                 update=":frmTabla  :pnlDetalle @form"
+                                 actionListener="#{frmTipoPelicula.btneEliminarHandler}"/>
+            </h:panelGrid>
+        </h:form>
+    </h:panelGroup>
+</h:body>
+
+</html>

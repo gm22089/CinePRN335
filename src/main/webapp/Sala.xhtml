@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Created by IntelliJ IDEA.
+  User: user
+  Date: 26/10/24
+  Time: 23:26
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+
+<h:head>
+    <title>SALA</title>
+</h:head>
+
+<h:body>
+    <p:outputLabel value="Sala"/>
+
+    <h:form id="frmTabla">
+        <p:dataTable value="#{frmSala.modelo}" var="r"
+                     lazy="true"
+                     paginator="true"
+                     rows="5"
+                     first="0"
+                     selectionMode="single"
+                     selection="#{frmSala.registro}"
+                     rendered="#{empty frmSala.registro}"
+        >
+            <p:ajax process="@this" update=":pnlDetalle @form" event="rowSelect" listener="#{frmSala.selecionarFila}"/>
+            <p:column headerText="ID"><h:outputText value="#{r.idSala}"/></p:column>
+            <p:column headerText="NOMBRE"><h:outputText value="#{r.nombre}"/></p:column>
+            <p:column headerText="SUCURSAL"><h:outputText value="#{r.idSucursal.nombre}"/></p:column>
+            <p:column headerText="ACTIVO"><h:outputText value="#{r.activo?'ACTIVO':'INACTIVO'}"/></p:column>
+            <p:column headerText="OBSERVACIONES"><h:outputText value="#{r.observaciones}"/></p:column>
+
+
+        </p:dataTable>
+        <h:panelGrid columns="2">
+            <p:commandButton value="CANCELAR" rendered="#{frmSala.estado ne 'NINGUNO'}" update=":pnlDetalle @form"
+                             actionListener="#{frmSala.btnCancelarHandler}"/>
+            <p:commandButton value="NUEVO" update=":pnlDetalle @form" actionListener="#{frmSala.btnNuevoHandler}"/>
+        </h:panelGrid>
+        <p:growl id="growl" showDetail="true" sticky="false" life="10500"/>
+    </h:form>
+
+    <h:panelGroup id="pnlDetalle">
+        <p:tabView id="tabDetalle" cache="false" dynamic="true" rendered="#{not empty frmSala.registro}">
+            <!--            info de la sala-->
+            <p:tab closable="false" title="Geralidades">
+                <h:form rendered="#{not empty frmSala.registro}" id="frmDetalle">
+                    <h:panelGrid columns="2">
+                        <p:outputLabel value="ID" for="txtid"/>
+                        <p:inputText id="txtid" value="#{frmSala.registro.idSala}" readonly="true" disabled="true"/>
+
+                        <p:outputLabel value="Nombre" for="txtNombre"/>
+                        <p:inputText id="txtNombre" value="#{frmSala.registro.nombre}" size="70"/>
+
+                        <p:outputLabel value="Nombre" for="chkActivo"/>
+                        <p:selectBooleanCheckbox id="chkActivo" value="#{frmSala.registro.activo}" size="70"/>
+
+                        <p:outputLabel value="Observaciones" for="txtObservaciones"/>
+                        <p:inputText id="txtObservaciones" value="#{frmSala.registro.observaciones}" size="70"/>
+
+                    </h:panelGrid>
+                    <h:panelGrid columns="3">
+                        <p:commandButton value="GUARDAR" rendered="#{frmSala.estado=='CREAR'}"
+                                         update=":frmTabla  :pnlDetalle @form"
+                                         actionListener="#{frmSala.btnGuardarHandler}"/>
+                        <p:commandButton value="MODIFICAR" rendered="#{frmSala.estado=='MODIFICAR'}"
+                                         update=":frmTabla :pnlDetalle @form"
+                                         actionListener="#{frmSala.btnModificarHandler}"/>
+                        <p:commandButton value="ELIMINAR" rendered="#{frmSala.estado=='MODIFICAR'}"
+                                         update=":frmTabla  :pnlDetalle @form"
+                                         actionListener="#{frmSala.btneEliminarHandler}"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:tab>
+
+            <!--            info de la sucursal-->
+            <p:tab closable="false" title="info sucursal" rendered="#{frmSala.estado !='CREAR'}">
+                <p:outputLabel value="#{frmSala.registro.idSucursal.nombre}"/>
+
+                <h:form rendered="#{not empty frmSala.registro}" id="frmDetalleSucursal">
+                    <h:panelGrid columns="2">
+                        <p:outputLabel value="ID" for="txtidSucursal"/>
+                        <p:inputText id="txtidSucursal" value="#{frmSala.registro.idSucursal.idSucursal}"
+                                     readonly="true" disabled="true"/>
+
+
+                        <p:outputLabel value="Nombre" for="txtNombreSucursal"/>
+                        <h:panelGroup>
+                            <p:selectOneMenu id="selectOneMenuSucursal" value="#{frmSala.sucursalId}">
+                                <f:selectItem itemValue="0" itemLabel="selecione una sucursal"/>
+                                <f:selectItems value="#{frmSala.sucursales}" var="sucursal"
+                                               itemLabel="#{sucursal.nombre}"
+                                               itemValue="#{sucursal.idSucursal}"/>
+                                <p:ajax
+                                        listener="#{frmSala.sucursalSelecionada}"
+                                        process="selectOneMenuSucursal"
+                                        update="frmDetalleSucursal growl"
+                                /> <!-- Actualiza el componente de mensajes -->
+                            </p:selectOneMenu>
+
+
+                            <!--                        <p:inputText id="txtNombreSucursal" value="#{frmSala.registro.idSucursal.nombre}" size="70" />-->
+                            <p:growl id="growl2" showDetail="true"/>
+
+                            <p:commandButton value="+" actionListener="#{frmSala.sucursalSelecionada}"/>
+                        </h:panelGroup>
+
+
+                        <p:outputLabel value="Longitud" for="longitudSucursal"/>
+                        <p:inputText id="chkActivoSlongitudSucursalucursal"
+                                     value="#{frmSala.registro.idSucursal.longitud}" size="70"/>
+
+                        <p:outputLabel value="Latitud" for="LatitudSucursal"/>
+                        <p:inputText id="longitudSucursal" value="#{frmSala.registro.idSucursal.latitud}" size="70"/>
+
+                        <p:outputLabel value="Activo" for="chkActivoSucursal"/>
+                        <p:selectBooleanCheckbox id="chkActivoSucursal" value="#{frmSala.registro.idSucursal.activo}"
+                                                 size="70"/>
+
+                        <p:outputLabel value="Comentarios" for="txtComentariosSucursal"/>
+                        <p:inputText id="txtComentariosSucursal" value="#{frmSala.registro.observaciones}" size="70"/>
+
+                    </h:panelGrid>
+                    <h:panelGrid columns="3">
+                        <p:commandButton value="GUARDAR" rendered="#{frmSala.estado=='CREAR'}"
+                                         update=":frmTabla  :pnlDetalle @form"
+                                         actionListener="#{frmSala.btnGuardarHandler}"/>
+                        <p:commandButton value="MODIFICAR" rendered="#{frmSala.estado=='MODIFICAR'}"
+                                         update=":frmTabla :pnlDetalle @form"
+                                         actionListener="#{frmSala.btnModificarHandler}"/>
+                        <p:commandButton value="ELIMINAR" rendered="#{frmSala.estado=='MODIFICAR'}"
+                                         update=":frmTabla  :pnlDetalle @form"
+                                         actionListener="#{frmSala.btneEliminarHandler}"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:tab>
+            <p:tab closable="false" title="Peliculas" rendered="#{frmSala.estado!='CREAR'}">
+                <p:outputLabel value="Peliculas disponibles en #{frmSala.registro.nombre}"/>
+
+            </p:tab>
+            //calendar
+            <p:tab closable="false" title="info programaciones">
+                <p:outputLabel value="Peliculas disponibles en #{frmSala.registro.nombre}"/>
+
+                <h:form>
+                    <p:dataTable value="#{frmSala.registro.programacionList}" var="r"
+                    >
+
+                        <p:column headerText="desde"><h:outputText value="#{r.desde}"/></p:column>
+                        <p:column headerText="hasta"><h:outputText value="#{r.hasta}"/></p:column>
+                    </p:dataTable>
+                </h:form>
+
+
+            </p:tab>
+
+        </p:tabView>
+    </h:panelGroup>
+</h:body>
+
+</html>

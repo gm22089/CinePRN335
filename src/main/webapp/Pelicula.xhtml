@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Created by IntelliJ IDEA.
+  User: user
+  Date: 26/10/24
+  Time: 23:21
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+
+<h:head>
+    <title>PELICULA</title>
+</h:head>
+
+<h:body>
+    <p:outputLabel value="Peliculas"/>
+    <h:form id="frmTabla">
+        <p:dataTable value="#{frmPelicula.modelo}" var="r"
+                     lazy="true"
+                     paginator="true"
+                     rows="5"
+                     first="0"
+                     selectionMode="single"
+                     selection="#{frmPelicula.registro}"
+                     rendered="#{empty frmPelicula.registro}"
+                     sortMode="single"
+        >
+            <p:ajax  process="@this" update=":pnlDetalle @form" event="rowSelect" listener="#{frmPelicula.selecionarFila}"/>
+            <p:column headerText="ID" sortBy="#{r.idPelicula}"><h:outputText value="#{r.idPelicula}"/></p:column>
+            <p:column headerText="NOMBRE" sortBy="#{r.nombre}"><h:outputText value="#{r.nombre}"/></p:column>
+            <p:column headerText="SINOPSIS"><h:outputText value="#{r.sinopsis}"/></p:column>
+
+        </p:dataTable>
+        <h:panelGrid columns="2">
+            <p:commandButton value="CANCELAR" rendered="#{frmPelicula.estado ne 'NINGUNO'}" update=":pnlDetalle @form" actionListener="#{frmPelicula.btnCancelarHandler}"/>
+            <p:commandButton value="NUEVO" update=":pnlDetalle @form" actionListener="#{frmPelicula.btnNuevoHandler}"/>
+        </h:panelGrid>
+        <p:growl id="growl" showDetail="true" sticky="false" life="1500" />
+    </h:form>
+
+    <h:panelGroup id="pnlDetalle">
+        <h:form rendered="#{not empty frmPelicula.registro}" id="frmDetalle">
+            <h:panelGrid columns="2">
+                <p:outputLabel value="ID" for="txtid"/>
+                <p:inputText id="txtid" value="#{frmPelicula.registro.idPelicula}" />
+
+                <p:outputLabel value="Nombre" for="txtNombre"/>
+                <p:inputText id="txtNombre" value="#{frmPelicula.registro.nombre}" size="70" />
+
+                <p:outputLabel value="Sinopsis" for="txtSinopsis"/>
+                <p:inputText id="txtSinopsis" value="#{frmPelicula.registro.sinopsis}" size="70" />
+
+
+            </h:panelGrid>
+            <h:panelGrid columns="3">
+                <p:commandButton value="GUARDAR" rendered="#{frmPelicula.estado=='CREAR'}" update=":frmTabla  :pnlDetalle @form" actionListener="#{frmPelicula.btnGuardarHandler}"/>
+                <p:commandButton value="MODIFICAR" rendered="#{frmPelicula.estado=='MODIFICAR'}" update=":frmTabla :pnlDetalle @form" actionListener="#{frmPelicula.btnModificarHandler}"/>
+                <p:commandButton value="ELIMINAR" rendered="#{frmPelicula.estado=='MODIFICAR'}" update=":frmTabla  :pnlDetalle @form" actionListener="#{frmPelicula.btneEliminarHandler}"/>
+            </h:panelGrid>
+        </h:form>
+    </h:panelGroup>
+</h:body>
+
+</html>

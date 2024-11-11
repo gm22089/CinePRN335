@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Created by IntelliJ IDEA.
+  User: user
+  Date: 26/10/24
+  Time: 23:25
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+
+<h:head>
+    <title>Reserva</title>
+</h:head>
+<p:outputLabel value=" realizar reserva"/>
+<h:body>
+    <h:form>
+        <!-- TreeTable para seleccionar la sucursal -->
+        <p:treeTable value="#{frmReservaCliente.root}" var="node" selectionMode="single"
+                     selection="#{frmReservaCliente.selectedNode}" dynamic="true">
+            <p:column headerText="Nombre">
+                <h:outputText value="#{node.nombre}"/>
+            </p:column>
+            <!-- Evento que actualiza el menú de sucursal al seleccionar un nodo -->
+            <p:ajax event="select" listener="#{frmReservaCliente.onNodeSelect}"
+                    update="growl SucursalMenu selectedSucursal"/>
+        </p:treeTable>
+
+        <!-- Mensajes de notificación -->
+        <p:growl id="growl" showDetail="true" sticky="false" life="15000"/>
+
+        <!-- Mostrar sucursal seleccionada -->
+        <h:outputText id="selectedSucursal"
+                      value="Sucursal seleccionada: #{frmReservaCliente.sucursalSelecionada.nombre}"/>
+
+        <!-- SelectOneMenu que se actualiza según la sucursal seleccionada -->
+        <p:panel id="SucursalMenu" header="Seleccionar Sucursal" style="margin-bottom:20px;">
+            <p:selectOneMenu value="#{frmReservaCliente.sucursalSelecionadaId}" style="width:100%;">
+                <f:selectItem itemLabel="Seleccione una Sucursal" itemValue="0" itemDisabled="true"/>
+                <f:selectItems value="#{frmReservaCliente.sucursales}" var="sucursal"
+                               itemLabel="#{sucursal.nombre}"
+                               itemValue="#{sucursal.idSucursal}"/>
+                <p:ajax listener="#{frmReservaCliente.sucursalSelected}" update="growl selectedSucursal"/>
+            </p:selectOneMenu>
+        </p:panel>
+
+        <!-- El menú se actualiza para reflejar la sucursal seleccionada sin duplicar opciones -->
+        <!--      -->
+    </h:form>
+
+
+</h:body>
+</html>

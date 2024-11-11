@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:component
+        xmlns:ui="jakarta.faces.facelets"
+        xmlns:cc="jakarta.faces.composite"
+        xmlns:h="jakarta.faces.html"
+        xmlns:p="http://primefaces.org/ui"
+>
+    <cc:interface>
+        <cc:attribute name="frm" type="sv.edu.ues.occ.ingenieria.prn335_2024.cine.boundary.jsf.AbstractFrm"
+                      required="true"
+                      displayName="Formulario"
+                      shortDescription="formulario sobre el que opera"/>
+
+        <cc:attribute name="actualizar"
+                      type="String"
+                      default=":pnlDetalle :pnlTabla"
+                      required="false"
+                      displayName="componentes a actualizar"
+                      shortDescription="define el area a refresacar"
+
+
+        />
+        <cc:implementation>
+            <h:panelGrid columns="#{cc.attrs.frm.estado!='NINGUNO'?'2':'1'}">
+                <p:commandButton value="CANCELAR" rendered="#{cc.attrs.frm.estado ne 'NINGUNO'}" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btnCancelarHandler}"/>
+                <p:commandButton value="NUEVO" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btnNuevoHandler}"/>
+            </h:panelGrid>
+        </cc:implementation>
+    </cc:interface>
+
+
+</ui:component>

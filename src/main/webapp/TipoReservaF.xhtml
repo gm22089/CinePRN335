@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Created by IntelliJ IDEA.
+  User: user
+  Date: 24/10/24
+  Time: 22:32
+-->
+<!--<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+-->
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:h="jakarta.faces.html"
+        xmlns:p="primefaces"
+>
+<h:head>
+
+    <title>Title</title>
+
+</h:head>
+<h:body>
+
+
+    <h:form id="frmTable">
+        <p:dataTable
+                value="#{frmTipoReservaF.modelo}"
+                var="r"
+                rows="10"
+                lazy="true"
+                selectionMode="single"
+                selection="#{frmTipoReservaF.registro}"
+                paginator="true"
+        >
+
+            <p:ajax event="rowSelect" update=":pnlDetalle" process="@this"/>
+
+            <p:column headerText="ID">
+                <h:outputText value="#{r.idTipoReserva}"/>
+            </p:column>
+            <p:column headerText="Nombre">
+                <h:outputText value="#{r.nombre}"/>
+            </p:column>
+            <p:column headerText="Estado">
+                <h:outputText value="#{r.activo?'ACTIVO':'INACTIVO'}"/>
+            </p:column>
+            <p:column headerText="Comentarios">
+                <h:outputText value="#{r.comentarios}"/>
+            </p:column>
+
+        </p:dataTable>
+
+        <h:panelGroup>
+            <h:panelGrid columns="1">
+                <h:commandButton ajax="true" process="@this" value="Nuevo" update=":pnlDetalle" actionListener="#{frmTipoReservaF.btnNuevoHandler}"
+                />
+                <h:outputText value="" /> <!-- Celda vacía para cumplir con columns="2" -->
+            </h:panelGrid>
+
+            <p:message showSummary="true" showDetail="true"/>
+            <p:growl showDetail="true" showSummary="true" life="3000" sticky="true"/>
+        </h:panelGroup>
+
+    </h:form>
+
+    <h:panelGroup id="pnlDetalle" styleClass="detalle">
+        <h:form id="frmDetalle" styleClass="detalle">
+
+            <h:panelGrid columns="2">
+                <p:outputLabel value="ID" for="txtIdTipoReserva"/>
+                <h:inputText id="txtIdTipoReserva" value="#{frmTipoReservaF.registro.idTipoReserva}" readonly="true"
+                             disabled="true"/>
+
+                <p:outputLabel value="Nombre" for="txtNombre"/>
+                <h:inputText size="70" id="txtNombre" value="#{frmTipoReservaF.registro.nombre}"/>
+
+                <p:outputLabel value="Activo" for="chkActivo"/>
+                <h:selectBooleanCheckbox id="chkActivo" value="#{frmTipoReservaF.registro.activo}"/>
+
+                <p:outputLabel for="txtComentarios" value="Comentarios"/>
+                <h:inputText id="txtComentarios" value="#{frmTipoReservaF.registro.comentarios}" cols="70" rows="3"/>
+            </h:panelGrid>
+
+            <h:panelGrid>
+                <p:commandButton value="Guardar" ajax="true" process="@form" update=":pnlDetalle :frmTable"
+                                 actionListener="#{frmTipoReservaF.btnCrearHandler}"/>
+            </h:panelGrid>
+            <p:message showSummary="true" showDetail="true"/>
+
+        </h:form>
+
+    </h:panelGroup>
+
+</h:body>
+
+</html>

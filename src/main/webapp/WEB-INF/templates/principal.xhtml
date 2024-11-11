@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.facelets"
+      xmlns:c="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>
+        <f:insert name="titulo">
+        Titulo de la pagina
+    </f:insert>
+    </title>
+    <h:outputStylesheet library="estilos" name="basico_templete.css"/>
+</h:head>
+<h:body>
+    <div class="ui-g">
+        <p:growl id="growl" showDetail="true" sticky="false" life="1500"/>
+        <div class="">
+            <h:form id="frmMenuPrincipal">
+                <p:outputLabel value="jajaj"/>
+                <p:menu model="#{frmMenu.model}" appendTo="body" toggleable="true">
+
+                </p:menu>
+            </h:form>
+        </div>
+        <div class="ui-g-12 ui-md-12">
+            <div class="ui-g-12">
+                <h1>
+                    <f:insert name="titulo">
+                        Titulo de la pagina
+                    </f:insert>
+                </h1>
+            </div>
+            <div class="ui-g-12 ui-g-nopad">
+                <div class="ui-g-12"
+                     style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <f:insert name="cuerpo">
+                        cuerpo de la pagina
+                    </f:insert>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="ui-g-12">
+        Todos los derechos reservados por ... @2024
+    </div>
+    <f:insert name="extras"></f:insert>
+</h:body>
+
+</html>
