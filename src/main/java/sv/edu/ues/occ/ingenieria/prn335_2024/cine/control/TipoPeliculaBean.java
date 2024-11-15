@@ -4,9 +4,11 @@ import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.PeliculaCaracteristica;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.TipoPelicula;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Stateless
@@ -57,14 +59,14 @@ public class TipoPeliculaBean extends AbstractDataPersist<TipoPelicula> implemen
             throw new IllegalArgumentException("El nombre no puede ser nulo o vacío");
         }
         return getEntityManager()
-                .createNamedQuery("TipoPelicula.findByName", TipoPelicula.class)
+                .createNamedQuery("TipoPelicula.findByNombre", TipoPelicula.class) // Query corregida
                 .setParameter("nombre", "%" + nombre + "%")
                 .getResultList();
     }
 
     public Long countActive() {
         return getEntityManager()
-                .createNamedQuery("TipoPelicula.countActive", Long.class)
+                .createNamedQuery("TipoPelicula.findByActivo", Long.class)
                 .getSingleResult();
     }
 
@@ -76,5 +78,13 @@ public class TipoPeliculaBean extends AbstractDataPersist<TipoPelicula> implemen
                 .createNamedQuery("TipoPelicula.findByExpresionRegular", TipoPelicula.class)
                 .setParameter("expresionRegular", expresionRegular)
                 .getResultList();
+    }
+
+    public List<PeliculaCaracteristica> getCaracteristicasPorTipo(Integer idTipoPelicula) {
+        if (idTipoPelicula == null) {
+            throw new IllegalArgumentException("ID no puede ser nulo");
+        }
+        TipoPelicula tipoPelicula = findById(idTipoPelicula);
+        return tipoPelicula != null ? new ArrayList<>(tipoPelicula.getPeliculaCaracteristicas()) : null;
     }
 }

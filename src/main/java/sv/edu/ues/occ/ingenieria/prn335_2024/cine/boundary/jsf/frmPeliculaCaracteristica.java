@@ -10,8 +10,9 @@ import jakarta.inject.Named;
 import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortMeta;
-import sv.edu.ues.occ.ingenieria.prn335_2024.cine.control.TipoPeliculaBean;
-import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.TipoPelicula;
+import sv.edu.ues.occ.ingenieria.prn335_2024.cine.control.PeliculaCaracteristicaBean;
+import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.Pelicula;
+import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.PeliculaCaracteristica;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,32 +20,34 @@ import java.util.Map;
 
 @Named
 @ViewScoped
-public class frmTipoPelicula implements Serializable {
+public class frmPeliculaCaracteristica implements Serializable {
 
     @Inject
     FacesContext facesContext;
 
     @Inject
-    TipoPeliculaBean tpeliBean;
-    LazyDataModel<TipoPelicula> modelo;
-    TipoPelicula registro;
+    PeliculaCaracteristicaBean pcBean;
+    LazyDataModel<PeliculaCaracteristica> modelo;
+    PeliculaCaracteristica registro;
+
+    Long idPelicula;
 
     @PostConstruct
     public void inicializar() {
-        modelo = new LazyDataModel<TipoPelicula>() {
+        modelo = new LazyDataModel<PeliculaCaracteristica>() {
 
             @Override
-            public String getRowKey(TipoPelicula object) {
-                if (object != null && object.getIdTipoPelicula() != null) {
-                    return object.getIdTipoPelicula().toString();
+            public String getRowKey(PeliculaCaracteristica object) {
+                if (object != null && object.getIdPeliculaCaracteristica() != null) {
+                    return object.getIdPeliculaCaracteristica().toString();
                 }
                 return null;
             }
 
             @Override
-            public TipoPelicula getRowData(String rowKey) {
+            public PeliculaCaracteristica getRowData(String rowKey) {
                 if (rowKey != null && getWrappedData() != null) {
-                    return getWrappedData().stream().filter(r -> rowKey.trim().equals(r.getIdTipoPelicula().toString())).findFirst().orElse(null);
+                    return getWrappedData().stream().filter(r -> rowKey.trim().equals(r.getIdPeliculaCaracteristica().toString())).findFirst().orElse(null);
                 }
                 return null;
             }
@@ -52,7 +55,9 @@ public class frmTipoPelicula implements Serializable {
             @Override
             public int count(Map<String, FilterMeta> map) {
                 try {
-                    return tpeliBean.count();
+                    if (idPelicula != null) {
+                        return pcBean.countPelicula(idPelicula);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -60,10 +65,10 @@ public class frmTipoPelicula implements Serializable {
             }
 
             @Override
-            public List<TipoPelicula> load(int desde, int max, Map<String, SortMeta> map, Map<String, FilterMeta> map1) {
+            public List<PeliculaCaracteristica> load(int desde, int max, Map<String, SortMeta> map, Map<String, FilterMeta> map1) {
                 try {
-                    if (desde >= 0 && max > 0) {
-                        return tpeliBean.findRange(desde, max);
+                    if (idPelicula != null && desde >= 0 && max > 0) {
+                        return pcBean.findByIdPelicula(idPelicula, desde, max);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -73,21 +78,34 @@ public class frmTipoPelicula implements Serializable {
         };
     }
 
-    public LazyDataModel<TipoPelicula> getModelo() {
+    public LazyDataModel<PeliculaCaracteristica> getModelo() {
         return modelo;
     }
 
-    public TipoPelicula getRegistro() {
+    public PeliculaCaracteristica getRegistro() {
         return registro;
     }
 
-    public void setRegistro(TipoPelicula registro) {
+    public void setRegistro(PeliculaCaracteristica registro) {
         this.registro = registro;
     }
 
-    public void btnNuevoHandler(ActionEvent ae) {
-        this.registro = new TipoPelicula();
-        this.registro.setActivo(true);
+    public Long getIdPelicula() {
+        return idPelicula;
+    }
+
+    public void setIdPelicula(Long idPelicula) {
+        this.idPelicula = idPelicula;
+    }
+
+    public void btnNuevoHandler(ActionEvent actionEvent) {
+        this.registro = new PeliculaCaracteristica();
+        if (idPelicula != null) {
+            Pelicula pelicula = new Pelicula();
+            pelicula.setIdPelicula(idPelicula); // Asigna el ID de la película
+            this.registro.setIdPelicula(pelicula); // Establece la relación
+        }
+        this.estado = ESTADO_CRUD.CREAR;
     }
 
     public void btnCancelarHandler(ActionEvent ae) {
@@ -95,19 +113,19 @@ public class frmTipoPelicula implements Serializable {
     }
 
     public void btnGuardarHandler(ActionEvent ae) {
-        tpeliBean.create(registro);
+        pcBean.create(registro);
         FacesMessage mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Datos guardados exitosamente", null);
         facesContext.addMessage(null, mensaje);
     }
 
     public void btnEliminarHandler(ActionEvent ae) {
-        tpeliBean.delete(registro);
+        pcBean.delete(registro);
         FacesMessage mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Eliminado exitosamente", null);
         facesContext.addMessage(null, mensaje);
     }
 
     public void btnModificarHandler(ActionEvent ae) {
-        tpeliBean.update(registro);
+        pcBean.update(registro);
         FacesMessage mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Modificado exitosamente", null);
         facesContext.addMessage(null, mensaje);
     }

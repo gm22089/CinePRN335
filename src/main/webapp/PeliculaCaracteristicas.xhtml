@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core" lang="es">
+<h:head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Características de la Película</title>
+</h:head>
+<h:body>
+    <h1>Características de la Película</h1>
+
+    <h:form id="frmTabla">
+        <h:dataTable value="#{frmPeliculaCaracteristica.registros}" var="r">
+
+            <h:column>
+                <f:facet name="header">ID</f:facet>
+                <h:outputText value="#{r.idPeliculaCaracteristica}"/>
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Características</f:facet>
+                <h:outputText value="#{r.idTipoPelicula.nombre}"/>
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Valor</f:facet>
+                <h:outputText value="#{r.valor}"/>
+            </h:column>
+
+            <h:column>
+                <h:commandButton value="Seleccionar"
+                                 actionListener="#{frmPeliculaCaracteristica.btnSeleccionarRegistroHandler(r.idPeliculaCaracteristica)}">
+                    <f:ajax render="pnlDetalle" execute="@form"/>
+                </h:commandButton>
+            </h:column>
+
+        </h:dataTable>
+
+        <h:panelGroup>
+            <h:commandButton value="Cancelar" actionListener="#{frmPeliculaCaracteristica.btnCancelarHandler}"/>
+            <h:commandButton value="Nuevo" actionListener="#{frmPeliculaCaracteristica.btnNuevoHandler}"/>
+        </h:panelGroup>
+    </h:form>
+
+    <h:panelGroup id="pnlDetalle">
+        <h:form id="frmDetalle" rendered="#{not empty frmPeliculaCaracteristica.registro}">
+
+            <h:panelGrid columns="2">
+                <h:outputLabel value="ID" for="txtId"/>
+                <h:inputText id="txtId" value="#{frmPeliculaCaracteristica.registro.idPeliculaCaracteristica}" readonly="true" disabled="true"/>
+
+                <h:outputLabel value="Características" for="txtCaracteristica"/>
+                <h:selectOneMenu id="txtCaracteristica" value="#{frmPeliculaCaracteristica.registro.idTipoPelicula}" required="true">
+                    <f:selectItems value="#{frmPeliculaCaracteristica.tipoPeliculaList}" var="tipo" itemValue="#{tipo}" itemLabel="#{tipo.nombre}"/>
+                </h:selectOneMenu>
+
+                <h:outputLabel value="Valor" for="txtValor"/>
+                <h:inputText id="txtValor" value="#{frmPeliculaCaracteristica.registro.valor}" required="true">
+                    <f:validateRegex pattern="#{frmPeliculaCaracteristica.regexPattern}" />
+                    <f:ajax event="blur" render="msgValidacion"/>
+                </h:inputText>
+
+                <h:message id="msgValidacion" for="txtValor" style="color:red"/>
+            </h:panelGrid>
+
+            <h:panelGrid>
+                <h:messages showSummary="true" showDetail="true"/>
+                <h:panelGrid>
+                    <h:commandButton value="Guardar" actionListener="#{frmPeliculaCaracteristica.btnGuardarHandler}"
+                                     rendered="#{frmPeliculaCaracteristica.estado == 'CREAR'}"/>
+                    <h:commandButton value="Modificar" actionListener="#{frmPeliculaCaracteristica.btnModificarHandler}"
+                                     rendered="#{frmPeliculaCaracteristica.estado == 'MODIFICAR'}"/>
+                    <h:commandButton value="Eliminar" actionListener="#{frmPeliculaCaracteristica.btnEliminarHandler}"
+                                     rendered="#{frmPeliculaCaracteristica.estado == 'MODIFICAR'}"/>
+                    <h:commandButton value="Cancelar" actionListener="#{frmPeliculaCaracteristica.btnCancelarHandler}"/>
+                </h:panelGrid>
+            </h:panelGrid>
+
+        </h:form>
+    </h:panelGroup>
+</h:body>
+</html>

@@ -1,155 +1,192 @@
 package sv.edu.ues.occ.ingenieria.prn335_2024.cine.boundary.jsf;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.control.PeliculaBean;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.Pelicula;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Named("frmPelicula")
 @ViewScoped
 public class frmPelicula implements Serializable {
 
-    @Inject
-    private PeliculaBean pBean;
+    private static final long serialVersionUID = 1L;
+    private static final Logger logger = Logger.getLogger(frmPelicula.class.getName());
 
     @Inject
-    private FacesContext facesContext;
+    private PeliculaBean peliculaBean;
 
-    private ESTADO_CRUD estado;
     private List<Pelicula> registros;
     private Pelicula registro;
+    private EstadoCrud estado;
+
+    private String busquedaNombre;
+    private String busquedaSinopsis;
+
+    public enum EstadoCrud {
+        CREAR, MODIFICAR, NINGUNO;
+    }
 
     @PostConstruct
     public void init() {
-        estado = ESTADO_CRUD.NINGUNO;
-        try {
-            registros = pBean.findRange(0, 1000000);  // Cargar todos los registros de películas
-        } catch (Exception e) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Error al cargar los registros", "No se pudieron cargar los registros de Película"));
-            e.printStackTrace();
-        }
+        estado = EstadoCrud.NINGUNO;
+        cargarRegistros();
     }
 
-    // Manejo de la selección del registro
-    public void btnSeleccionarRegistroHandler(final Integer idPelicula) {
-        this.estado = ESTADO_CRUD.MODIFICAR;
-        if (idPelicula != null) {
-            this.registro = this.registros.stream()
-                    .filter(r -> idPelicula.equals(r.getIdPelicula()))
-                    .findFirst().orElse(null);
-            if (this.registro == null) {
-                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Registro no encontrado", "El registro seleccionado no existe"));
+    private void cargarRegistros() {
+        try {
+            registros = peliculaBean.findAll();
+            if (registros == null || registros.isEmpty()) {
+                registros = Collections.emptyList();
+                mostrarMensaje("No se encontraron registros de películas.");
             }
+        } catch (Exception e) {
+            mostrarMensajeError("Error al cargar registros", "No se pudo cargar la lista de películas.");
+            logger.log(Level.SEVERE, "Error al cargar registros", e);
         }
     }
 
-    // Cancela la acción actual y limpia el formulario
-    public void btnCancelarHandler(ActionEvent actionEvent) {
-        this.registro = null;
-        this.estado = ESTADO_CRUD.NINGUNO;
+    public void seleccionarRegistro(Integer idPelicula) {
+        if (idPelicula == null || idPelicula <= 0) {
+            mostrarMensajeError("Selección inválida", "El ID de la película es inválido.");
+            return;
+        }
+        registro = peliculaBean.findById(idPelicula);
+        if (registro != null) {
+            estado = EstadoCrud.MODIFICAR;
+        } else {
+            mostrarMensajeError("Error", "No se encontró la película seleccionada.");
+            estado = EstadoCrud.NINGUNO;
+        }
     }
 
-    public void btnNuevoHandler(ActionEvent actionEvent) {
-        this.registro = new Pelicula();
-        // Cambiar la forma en la que se asigna el valor de "activo"
-        this.registro.setActivaInterna(true);
-        this.estado = ESTADO_CRUD.CREAR;
+    public void prepararNuevoRegistro() {
+        registro = new Pelicula();
+        estado = EstadoCrud.CREAR;
     }
 
-
-    // Guarda un nuevo registro o modifica el existente
-    public void btnGuardarHandler(ActionEvent actionEvent) {
-        FacesMessage mensaje;
+    public void guardar() {
+        if (registro == null) {
+            mostrarMensajeError("Error al guardar", "El registro de la película no puede ser nulo.");
+            return;
+        }
         try {
-            if (estado == ESTADO_CRUD.CREAR) {
-                pBean.create(registro);  // Crear un nuevo registro
-                mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO,
-                        "Registro guardado con éxito", "La película se ha creado correctamente");
-            } else if (estado == ESTADO_CRUD.MODIFICAR) {
-                pBean.update(registro);  // Modificar el registro existente
-                mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO,
-                        "Registro modificado con éxito", "La película se ha modificado correctamente");
-            } else {
-                return;
+            if (estado == EstadoCrud.CREAR) {
+                peliculaBean.create(registro);
+                mostrarMensaje("Registro creado con éxito.");
+            } else if (estado == EstadoCrud.MODIFICAR) {
+                peliculaBean.update(registro);
+                mostrarMensaje("Registro modificado con éxito.");
             }
-            facesContext.addMessage(null, mensaje);
-            this.registro = null;
-            this.registros = pBean.findRange(0, 1000000);  // Actualiza la lista de registros
-            this.estado = ESTADO_CRUD.NINGUNO;
+            cargarRegistros();
+            limpiarFormulario();
         } catch (Exception e) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Error al guardar el registro", "No se pudo guardar el registro"));
-            e.printStackTrace();
+            mostrarMensajeError("Error al guardar", "No se pudo guardar el registro.");
+            logger.log(Level.SEVERE, "Error al guardar la película", e);
         }
     }
 
-    // Elimina un registro
-    public void btnEliminarHandler(ActionEvent actionEvent) {
-        FacesMessage mensaje;
+    public void eliminarRegistro(Integer idPelicula) {
+        if (idPelicula == null || idPelicula <= 0) {
+            mostrarMensajeError("Eliminación inválida", "El ID de la película es inválido.");
+            return;
+        }
         try {
-            pBean.delete(registro);  // Eliminar el registro seleccionado
-            mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO,
-                    "Registro eliminado con éxito", "La película ha sido eliminada correctamente");
-            facesContext.addMessage(null, mensaje);
-            this.registro = null;
-            this.estado = ESTADO_CRUD.NINGUNO;
-            this.registros = pBean.findRange(0, 1000000);  // Actualiza la lista de registros
+            peliculaBean.delete(registro);
+            mostrarMensaje("Registro eliminado con éxito.");
+            cargarRegistros();
         } catch (Exception e) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Error al eliminar", "Ocurrió un error al eliminar el registro"));
-            e.printStackTrace();
+            mostrarMensajeError("Error al eliminar", "No se pudo eliminar el registro.");
+            logger.log(Level.SEVERE, "Error al eliminar la película", e);
         }
     }
 
-    // Métodos de acceso y manipulación de registros
+    public void buscarPorNombre() {
+        if (busquedaNombre == null || busquedaNombre.trim().isEmpty()) {
+            mostrarMensaje("El campo de búsqueda de nombre está vacío. Mostrando todos los registros.");
+            cargarRegistros();
+            return;
+        }
+        try {
+            registros = peliculaBean.findByName(busquedaNombre);
+            if (registros == null || registros.isEmpty()) {
+                registros = Collections.emptyList();
+                mostrarMensaje("No se encontraron resultados para el nombre proporcionado.");
+            }
+        } catch (Exception e) {
+            mostrarMensajeError("Error en la búsqueda", "No se pudo realizar la búsqueda por nombre.");
+            logger.log(Level.SEVERE, "Error al buscar películas por nombre", e);
+        }
+    }
+
+    public void buscarPorSinopsis() {
+        if (busquedaSinopsis == null || busquedaSinopsis.trim().isEmpty()) {
+            mostrarMensaje("El campo de búsqueda de sinopsis está vacío. Mostrando todos los registros.");
+            cargarRegistros();
+            return;
+        }
+        try {
+            registros = peliculaBean.findBySinopsis(busquedaSinopsis);
+            if (registros == null || registros.isEmpty()) {
+                registros = Collections.emptyList();
+                mostrarMensaje("No se encontraron resultados para la sinopsis proporcionada.");
+            }
+        } catch (Exception e) {
+            mostrarMensajeError("Error en la búsqueda", "No se pudo realizar la búsqueda por sinopsis.");
+            logger.log(Level.SEVERE, "Error al buscar películas por sinopsis", e);
+        }
+    }
+
+    private void limpiarFormulario() {
+        registro = null;
+        estado = EstadoCrud.NINGUNO;
+    }
+
+    private void mostrarMensaje(String mensaje) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(mensaje));
+    }
+
+    private void mostrarMensajeError(String titulo, String detalle) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, titulo, detalle));
+    }
+
+    // Getters y Setters
+
     public List<Pelicula> getRegistros() {
         return registros;
-    }
-
-    public void setRegistros(List<Pelicula> registros) {
-        this.registros = registros;
-    }
-
-    public Integer getSeleccionado() {
-        if (registro != null) {
-            return Math.toIntExact(registro.getIdPelicula());
-        } else {
-            return null;
-        }
-    }
-
-    public void setSeleccionado(Integer seleccionado) {
-        this.registro = this.registros.stream()
-                .filter(r -> r.getIdPelicula().equals(seleccionado))
-                .findFirst().orElse(null);
-        if (this.registro != null) {
-            this.estado = ESTADO_CRUD.MODIFICAR;
-        }
     }
 
     public Pelicula getRegistro() {
         return registro;
     }
 
-    public void setRegistro(Pelicula registro) {
-        this.registro = registro;
-    }
-
-    public ESTADO_CRUD getEstado() {
+    public EstadoCrud getEstado() {
         return estado;
     }
 
-    public void setEstado(ESTADO_CRUD estado) {
-        this.estado = estado;
+    public String getBusquedaNombre() {
+        return busquedaNombre;
+    }
+
+    public void setBusquedaNombre(String busquedaNombre) {
+        this.busquedaNombre = busquedaNombre;
+    }
+
+    public String getBusquedaSinopsis() {
+        return busquedaSinopsis;
+    }
+
+    public void setBusquedaSinopsis(String busquedaSinopsis) {
+        this.busquedaSinopsis = busquedaSinopsis;
     }
 }

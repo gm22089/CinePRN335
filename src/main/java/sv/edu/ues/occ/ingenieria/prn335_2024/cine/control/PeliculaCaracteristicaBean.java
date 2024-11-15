@@ -16,8 +16,9 @@ import java.util.logging.Logger;
 @Stateless
 @LocalBean
 public class PeliculaCaracteristicaBean extends AbstractDataPersist<PeliculaCaracteristica> implements Serializable {
+
     @PersistenceContext(unitName = "cinePU")
-    EntityManager em;
+    private EntityManager em;
 
     public PeliculaCaracteristicaBean() {
         super(PeliculaCaracteristica.class);
@@ -28,13 +29,33 @@ public class PeliculaCaracteristicaBean extends AbstractDataPersist<PeliculaCara
         return em;
     }
 
+    @Override
+    public void create(PeliculaCaracteristica registro) throws IllegalStateException, IllegalArgumentException {
+        super.create(registro);
+    }
+
+    @Override
+    public List<PeliculaCaracteristica> findRange(int first, int max) {
+        return em.createQuery("SELECT p FROM PeliculaCaracteristica p", PeliculaCaracteristica.class)
+                .setFirstResult(first)
+                .setMaxResults(max)
+                .getResultList();
+    }
+
+    public PeliculaCaracteristica findById(final Long idPeliculaCaracteristica) {
+        if (idPeliculaCaracteristica == null || idPeliculaCaracteristica <= 0) {
+            throw new IllegalArgumentException("ID de característica de película no válido");
+        }
+        return em.find(PeliculaCaracteristica.class, idPeliculaCaracteristica);
+    }
+
     public List<PeliculaCaracteristica> findByIdPelicula(final long idPelicula, int first, int last) {
         try {
-            TypedQuery<PeliculaCaracteristica> q = em.createNamedQuery("PeliculaCaracteristica.findByIdPelicula", PeliculaCaracteristica.class);
-            q.setParameter("idPelicula", idPelicula);
-            q.setFirstResult(first);
-            q.setMaxResults(last);
-            return q.getResultList();
+            TypedQuery<PeliculaCaracteristica> query = em.createNamedQuery("PeliculaCaracteristica.findByIdPelicula", PeliculaCaracteristica.class);
+            query.setParameter("idPelicula", idPelicula);
+            query.setFirstResult(first);
+            query.setMaxResults(last);
+            return query.getResultList();
         } catch (Exception e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error al buscar características de la película", e);
         }
@@ -43,8 +64,8 @@ public class PeliculaCaracteristicaBean extends AbstractDataPersist<PeliculaCara
 
     public List<TipoPelicula> findAllTiposPelicula() {
         try {
-            TypedQuery<TipoPelicula> q = em.createNamedQuery("PeliculaCaracteristica.findAll", TipoPelicula.class);
-            return q.getResultList();
+            TypedQuery<TipoPelicula> query = em.createNamedQuery("PeliculaCaracteristica.findAll", TipoPelicula.class);
+            return query.getResultList();
         } catch (Exception e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error al buscar todos los tipos de películas", e);
         }
@@ -53,12 +74,18 @@ public class PeliculaCaracteristicaBean extends AbstractDataPersist<PeliculaCara
 
     public int countPeliculaCaracteristica(final long idPelicula) {
         try {
-            TypedQuery<Long> q = em.createNamedQuery("PeliculaCaracteristica.countByIdPelicula", Long.class);
-            q.setParameter("idPelicula", idPelicula);
-            return q.getSingleResult().intValue();
+            TypedQuery<Long> query = em.createNamedQuery("PeliculaCaracteristica.countByIdPelicula", Long.class);
+            query.setParameter("idPelicula", idPelicula);
+            return query.getSingleResult().intValue();
         } catch (Exception e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error al contar las características de la película", e);
         }
         return 0;
+    }
+
+    public List<PeliculaCaracteristica> findByExpresionRegular(String expresionRegular) {
+        return em.createNamedQuery("PeliculaCaracteristica.findByExpresionRegular", PeliculaCaracteristica.class)
+                .setParameter("expresionRegular", expresionRegular)
+                .getResultList();
     }
 }

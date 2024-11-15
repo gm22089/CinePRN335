@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core">
+<h:head>
+    <title>Lista de Sucursales</title>
+</h:head>
+
+<h:body>
+    <h1>Lista de Sucursales</h1>
+
+    <!-- Formulario de visualización de las Sucursales -->
+    <h:form id="frmTabla">
+        <h:dataTable value="#{frmSucursal.registros}" var="r">
+            <!-- Columna para el ID -->
+            <h:column>
+                <f:facet name="header">ID</f:facet>
+                <h:outputText value="#{r.idSucursal}" />
+            </h:column>
+
+            <!-- Columna para el Nombre -->
+            <h:column>
+                <f:facet name="header">Nombre</f:facet>
+                <h:outputText value="#{r.nombre}" />
+            </h:column>
+
+            <!-- Columna para las Coordenadas (Longitud y Latitud) -->
+            <h:column>
+                <f:facet name="header">Coordenadas</f:facet>
+                <h:outputText value="#{r.latitud}, #{r.longitud}" />
+            </h:column>
+
+            <!-- Columna para el Estado (Activo/No Activo) -->
+            <h:column>
+                <f:facet name="header">Estado</f:facet>
+                <h:outputText value="#{r.activo ? 'Activo' : 'Inactivo'}" />
+            </h:column>
+
+            <!-- Columna para los Comentarios -->
+            <h:column>
+                <f:facet name="header">Comentarios</f:facet>
+                <h:outputText value="#{r.comentarios}" />
+            </h:column>
+
+            <!-- Botón para seleccionar el registro y editar -->
+            <h:column>
+                <h:commandButton value="Seleccionar" actionListener="#{frmSucursal.btnSeleccionarRegistroHandler(r.idSucursal)}">
+                    <f:ajax render="pnlDetalle" execute="@form"/>
+                </h:commandButton>
+            </h:column>
+        </h:dataTable>
+
+        <!-- Botones para nuevas acciones -->
+        <h:panelGroup>
+            <h:commandButton value="Cancelar" actionListener="#{frmSucursal.btnCancelarHandler}" />
+            <h:commandButton value="Nuevo" actionListener="#{frmSucursal.btnNuevoHandler}" />
+        </h:panelGroup>
+    </h:form>
+
+    <!-- Detalles del formulario para crear/editar una sucursal -->
+    <h:panelGroup id="pnlDetalle">
+        <h:form id="frmDetalle" rendered="#{not empty frmSucursal.registro}">
+            <h:panelGrid columns="2">
+                <!-- ID de la Sucursal -->
+                <h:outputLabel value="ID" for="txtId" />
+                <h:inputText id="txtId" value="#{frmSucursal.registro.idSucursal}" readonly="true" disabled="true"/>
+
+                <!-- Nombre de la Sucursal -->
+                <h:outputLabel value="Nombre" for="txtNombre" />
+                <h:inputText id="txtNombre" value="#{frmSucursal.registro.nombre}" size="70"/>
+
+                <!-- Estado (Activo/Inactivo) -->
+                <h:outputLabel value="Estado" for="chkActivo" />
+                <h:selectBooleanCheckbox id="chkActivo" value="#{frmSucursal.registro.activo}" />
+
+                <!-- Coordenadas -->
+                <h:outputLabel value="Coordenadas" for="txtCoordenadas" />
+                <h:outputText id="txtCoordenadas" value="#{frmSucursal.registro.latitud}, #{frmSucursal.registro.longitud}" />
+
+                <!-- Comentarios -->
+                <h:outputLabel value="Comentarios" for="txtComentarios" />
+                <h:inputTextarea id="txtComentarios" value="#{frmSucursal.registro.comentarios}" cols="70" rows="3"/>
+            </h:panelGrid>
+
+            <!-- Mensajes de error o éxito -->
+            <h:messages showSummary="true" showDetail="true"/>
+
+            <!-- Botones para guardar, modificar o eliminar -->
+            <h:panelGrid>
+                <h:commandButton value="Guardar" actionListener="#{frmSucursal.btnGuardarHandler}" rendered="#{frmSucursal.estado == 'CREAR'}"/>
+                <h:commandButton value="Modificar" actionListener="#{frmSucursal.btnGuardarHandler}" rendered="#{frmSucursal.estado == 'MODIFICAR'}"/>
+                <h:commandButton value="Eliminar" actionListener="#{frmSucursal.btnEliminarHandler}" rendered="#{frmSucursal.estado == 'MODIFICAR'}"/>
+
+            </h:panelGrid>
+        </h:form>
+    </h:panelGroup>
+</h:body>
+</html>

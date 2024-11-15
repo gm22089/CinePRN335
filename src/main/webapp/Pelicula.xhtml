@@ -4,48 +4,53 @@
       xmlns:f="jakarta.faces.core">
 
 <h:head>
-    <title>Peliculas</title>
+    <title>Gestión de Películas</title>
 </h:head>
 
 <h:body>
-    <h1>Peliculas</h1>
+    <h1>Gestión de Películas</h1>
 
-    <!-- Formulario para mostrar y seleccionar registros -->
+    <!-- Formulario para mostrar y buscar registros -->
     <h:form id="frmTabla">
-        <h:dataTable value="#{frmPelicula.registros}" var="r" rowIndexVar="index">
 
-            <!-- Columna ID -->
+        <!-- Campo de búsqueda -->
+        <h:panelGrid columns="3">
+            <h:outputLabel value="Buscar por Nombre:" for="txtBusquedaNombre"/>
+            <h:inputText id="txtBusquedaNombre" value="#{frmPelicula.busquedaNombre}" size="40"/>
+            <h:commandButton value="Buscar" action="#{frmPelicula.buscarPorNombre}">
+                <f:ajax render="frmTabla"/>
+            </h:commandButton>
+        </h:panelGrid>
+
+        <!-- Tabla de datos -->
+        <h:dataTable value="#{frmPelicula.registros}" var="r" rowIndexVar="index" styleClass="tablaDatos">
+
+            <!-- Encabezado de la tabla -->
             <h:column>
                 <f:facet name="header">ID</f:facet>
                 <h:outputText value="#{r.idPelicula}"/>
             </h:column>
-
-            <!-- Columna Nombre -->
             <h:column>
                 <f:facet name="header">Nombre</f:facet>
                 <h:outputText value="#{r.nombre}"/>
             </h:column>
-
-            <!-- Columna Sinopsis -->
             <h:column>
                 <f:facet name="header">Sinopsis</f:facet>
                 <h:outputText value="#{r.sinopsis}"/>
             </h:column>
-
-            <!-- Botón para seleccionar un registro -->
             <h:column>
                 <h:commandButton value="Seleccionar"
-                                 action="#{frmPelicula.btnSeleccionarRegistroHandler(r.idPelicula)}">
+                                 action="#{frmPelicula.seleccionarRegistro(r.idPelicula)}">
                     <f:ajax render="pnlDetalle frmTabla" execute="@form"/>
                 </h:commandButton>
             </h:column>
 
         </h:dataTable>
 
-        <!-- Botones de Acción -->
-        <h:panelGroup>
+        <!-- Botones de acción -->
+        <h:panelGroup style="margin-top: 20px;">
             <h:commandButton value="Cancelar" action="#{frmPelicula.btnCancelarHandler}"/>
-            <h:commandButton value="Nuevo" action="#{frmPelicula.btnNuevoHandler}" />
+            <h:commandButton value="Nuevo" action="#{frmPelicula.prepararNuevoRegistro}" />
         </h:panelGroup>
 
     </h:form>
@@ -55,30 +60,31 @@
         <h:form id="frmDetalle" rendered="#{not empty frmPelicula.registro}">
 
             <!-- Formulario de detalle -->
-            <h:panelGrid columns="2">
+            <h:panelGrid columns="2" style="margin-top: 20px;">
                 <h:outputLabel value="ID" for="txtId"/>
                 <h:inputText id="txtId" value="#{frmPelicula.registro.idPelicula}" readonly="true" disabled="true"/>
 
                 <h:outputLabel value="Nombre" for="txtNombre"/>
-                <h:inputText size="70" id="txtNombre" value="#{frmPelicula.registro.nombre}"/>
+                <h:inputText id="txtNombre" value="#{frmPelicula.registro.nombre}" required="true"
+                             requiredMessage="El nombre es obligatorio." size="70"/>
 
                 <h:outputLabel value="Sinopsis" for="txtSinopsis"/>
-                <h:inputText size="70" id="txtSinopsis" value="#{frmPelicula.registro.sinopsis}"/>
+                <h:inputTextarea id="txtSinopsis" value="#{frmPelicula.registro.sinopsis}" rows="4" cols="70"
+                                 required="true" requiredMessage="La sinopsis es obligatoria."/>
             </h:panelGrid>
 
             <!-- Mensajes de validación o error -->
-            <h:panelGrid>
-                <h:messages showSummary="true" showDetail="true"/>
-            </h:panelGrid>
+            <h:messages showSummary="true" showDetail="true"/>
 
-            <!-- Botones de Acción en el panel de detalle -->
-            <h:panelGrid>
-                <h:commandButton value="Guardar" action="#{frmPelicula.btnGuardarHandler}"
+            <!-- Botones de acción en el panel de detalle -->
+            <h:panelGrid columns="3" style="margin-top: 20px;">
+                <h:commandButton value="Guardar" action="#{frmPelicula.guardar}"
                                  rendered="#{frmPelicula.estado == 'CREAR'}"/>
-                <h:commandButton value="Modificar" action="#{frmPelicula.btnModificarHandler}"
+                <h:commandButton value="Modificar" action="#{frmPelicula.guardar}"
                                  rendered="#{frmPelicula.estado == 'MODIFICAR'}"/>
-                <h:commandButton value="Eliminar" action="#{frmPelicula.btnEliminarHandler}"
-                                 rendered="#{frmPelicula.estado == 'MODIFICAR'}"/>
+                <h:commandButton value="Eliminar" action="#{frmPelicula.eliminarRegistro(frmPelicula.registro.idPelicula)}"
+                                 rendered="#{frmPelicula.estado == 'MODIFICAR'}"
+                                 onclick="return confirm('¿Estás seguro de eliminar este registro?');"/>
             </h:panelGrid>
 
         </h:form>

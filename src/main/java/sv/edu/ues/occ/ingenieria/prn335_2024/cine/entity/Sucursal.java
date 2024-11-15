@@ -2,15 +2,26 @@ package sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
-@Table(name = "sucursal", schema = "public")
-public class Sucursal {
+@Table(name = "sucursal")
+@XmlRootElement
+@NamedQueries({
+        @NamedQuery(name = "Sucursal.findAll", query = "SELECT s FROM Sucursal s"),
+        @NamedQuery(name = "Sucursal.findByIdSucursal", query = "SELECT s FROM Sucursal s WHERE s.idSucursal = :idSucursal"),
+        @NamedQuery(name = "Sucursal.findByNombre", query = "SELECT s FROM Sucursal s WHERE s.nombre LIKE :nombre"),
+        @NamedQuery(name = "Sucursal.findByActivo", query = "SELECT COUNT(s) FROM Sucursal s WHERE s.activo = :activo"),
+        @NamedQuery(name = "Sucursal.findByCity", query = "SELECT s FROM Sucursal s WHERE s.comentarios LIKE :ciudad")
+})
+public class Sucursal implements Serializable {
+
     @Id
-    @Column(name = "id_sucursal", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_sucursal", nullable = false)
     private Integer idSucursal;
 
     @Size(max = 155)
@@ -31,12 +42,11 @@ public class Sucursal {
     private Boolean activo;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "idSucursal")
-    public List<Sala> SalaList;
+    private List<Sala> salaList;
 
-    public Sucursal()
-    {
-
+    public Sucursal() {
     }
+
     public Sucursal(Integer idSucursal) {
         this.idSucursal = idSucursal;
     }
@@ -45,8 +55,8 @@ public class Sucursal {
         return idSucursal;
     }
 
-    public void setIdSucursal(Integer id) {
-        this.idSucursal = id;
+    public void setIdSucursal(Integer idSucursal) {
+        this.idSucursal = idSucursal;
     }
 
     public String getNombre() {
@@ -90,10 +100,10 @@ public class Sucursal {
     }
 
     public List<Sala> getSalaList() {
-        return SalaList;
+        return salaList;
     }
 
     public void setSalaList(List<Sala> salaList) {
-        SalaList = salaList;
+        this.salaList = salaList;
     }
 }

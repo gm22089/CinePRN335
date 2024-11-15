@@ -2,24 +2,17 @@ package sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
-import java.io.Serializable;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-
-@Table(name = "tipo_pelicula", schema = "public")
 @Entity
-@NamedQueries({
-        @NamedQuery(name = "TipoPelicula.findAll", query = "SELECT t FROM TipoPelicula t"),
-        @NamedQuery(name = "TipoPelicula.findByName", query = "SELECT t FROM TipoPelicula t WHERE t.nombre LIKE :nombre"),
-        @NamedQuery(name = "TipoPelicula.countActive", query = "SELECT COUNT(t) FROM TipoPelicula t WHERE t.activo = true"),
-        @NamedQuery(name = "TipoPelicula.findByExpresionRegular", query = "SELECT t FROM TipoPelicula t WHERE t.expresionRegular = :expresionRegular")
-})
-public class TipoPelicula implements Serializable {
+@Table(name = "tipo_pelicula", schema = "public")
+public class TipoPelicula {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tipo_pelicula_id_gen")
+    @SequenceGenerator(name = "tipo_pelicula_id_gen", sequenceName = "tipo_pelicula_id_tipo_pelicula_seq", allocationSize = 1)
     @Column(name = "id_tipo_pelicula", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idTipoPelicula;
 
     @Size(max = 155)
@@ -37,13 +30,8 @@ public class TipoPelicula implements Serializable {
     @Column(name = "expresion_regular")
     private String expresionRegular;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "idTipoPelicula")
-    public List<PeliculaCaracteristica> PeliculaCaracteristicaList;
-
-    public TipoPelicula() {}
-    public TipoPelicula(Integer idTipoPelicula) {
-        this.idTipoPelicula = idTipoPelicula;
-    }
+    @OneToMany(mappedBy = "idTipoPelicula")
+    private Set<PeliculaCaracteristica> peliculaCaracteristicas = new LinkedHashSet<>();
 
     public Integer getIdTipoPelicula() {
         return idTipoPelicula;
@@ -85,11 +73,12 @@ public class TipoPelicula implements Serializable {
         this.expresionRegular = expresionRegular;
     }
 
-    public List<PeliculaCaracteristica> getPeliculaCaracteristicaList() {
-        return PeliculaCaracteristicaList;
+    public Set<PeliculaCaracteristica> getPeliculaCaracteristicas() {
+        return peliculaCaracteristicas;
     }
 
-    public void setPeliculaCaracteristicaList(List<PeliculaCaracteristica> peliculaCaracteristicaList) {
-        PeliculaCaracteristicaList = peliculaCaracteristicaList;
+    public void setPeliculaCaracteristicas(Set<PeliculaCaracteristica> peliculaCaracteristicas) {
+        this.peliculaCaracteristicas = peliculaCaracteristicas;
     }
+
 }
