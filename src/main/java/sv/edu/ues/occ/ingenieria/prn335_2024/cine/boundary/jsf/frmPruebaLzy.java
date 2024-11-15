@@ -111,13 +111,5 @@ public class frmPruebaLzy extends AbstractFrm<Pelicula> implements Serializable 
         return "";
     }
 
-    @Override
-    public  void inicioRegistros(){
-        this.modelo=new LazyDataModelBuilder<Pelicula>(
-                (Void) -> peliculaBean.countAllPeliculas(),
-                this::getIdByObject,
-                this::getObjectById,
-                (init,max,campo,orden)->peliculaBean.getAllPeliculas(init,max,campo,orden)
-        ).getModelo();
-    }
+
 }

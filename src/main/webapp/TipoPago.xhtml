@@ -1,77 +1,88 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Created by IntelliJ IDEA.
-  User: user
-  Date: 26/10/24
-  Time: 22:04
--->
-<f:composition xmlns="http://www.w3.org/1999/xhtml"
-               xmlns:h="jakarta.faces.html"
-               xmlns:f="jakarta.faces.facelets"
-               xmlns:p="http://primefaces.org/ui"
-               xmlns:crud="jakarta.faces.composite/crud"
-               template="WEB-INF/templates/principal.xhtml"
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core">
 
->
+<h:head>
+    <title>Tipo de Pago</title>
+</h:head>
 
+<h:body>
+    <h1>Tipo de Pago</h1>
 
-    <f:define name="titulo">
-        #{frmTipoPago.titulo}
-    </f:define>
+    <h:form id="frmTabla">
+        <h:dataTable value="#{frmTipoPago.registros}" var="r">
 
-    <f:define name="cuerpo">
-        <h:panelGrid>
-            <h:panelGroup id="pnlTabla">
-                <h:form id="frmTabla">
-                    <p:dataTable value="#{frmTipoPago.modelo}" var="r"
-                                 lazy="true"
-                                 paginator="true"
-                                 rows="5"
-                                 first="0"
-                                 selectionMode="single"
-                                 selection="#{frmTipoPago.registro}"
-                                 rendered="#{empty frmTipoPago.registro}"
-                    >
-                        <p:ajax process="@this" update=":pnlDetalle @form" event="rowSelect"
-                                listener="#{frmTipoPago.selecionarFila}"/>
-                        <p:column headerText="ID"><h:outputText value="#{r.idTipoPago}"/></p:column>
-                        <p:column headerText="NOMBRE"><h:outputText value="#{r.nombre}"/></p:column>
-                        <p:column headerText="ACTIVO"><h:outputText value="#{r.activo?'ACTIVO':'INACTIVO'}"/></p:column>
+            <h:column>
+                <f:facet name="header">
+                    ID
+                </f:facet>
+                <h:outputText value="#{r.idTipoPago}"/>
+            </h:column>
 
-                    </p:dataTable>
-                    <crud:botonesTop frm="#{frmTipoPago}"/>
-                    <p:growl id="growl" showDetail="true" sticky="false" life="1500"/>
-                </h:form>
-            </h:panelGroup>
-        </h:panelGrid>
+            <h:column>
+                <f:facet name="header">
+                    Nombre
+                </f:facet>
+                <h:outputText value="#{r.nombre}"/>
+            </h:column>
 
-        <h:panelGroup id="pnlDetalle">
-            <h:form rendered="#{not empty frmTipoPago.registro}" id="frmDetalle">
-                <h:panelGrid columns="2">
-                    <p:outputLabel value="ID" for="txtid"/>
-                    <p:inputText id="txtid" value="#{frmTipoPago.registro.idTipoPago}" readonly="true" disabled="true"/>
+            <h:column>
+                <f:facet name="header">
+                    ESTADO
+                </f:facet>
+                <h:outputText value="#{r.activo ? 'ACTIVO' : 'INACTIVO'}"/>
+            </h:column>
 
-                    <p:outputLabel value="Nombre" for="txtNombre"/>
-                    <p:inputText id="txtNombre" value="#{frmTipoPago.registro.nombre}" size="70"/>
+            <h:column>
+                <h:commandButton value="Seleccionar"
+                                 actionListener="#{frmTipoPago.btnSeleccionarRegistroHandler(r.idTipoPago)}">
+                    <f:ajax render="pnlDetalle" execute="@form"/>
+                </h:commandButton>
+            </h:column>
 
-                    <p:outputLabel value="Nombre" for="chkActivo"/>
-                    <p:selectBooleanCheckbox id="chkActivo" value="#{frmTipoPago.registro.activo}" size="70"/>
+        </h:dataTable>
 
-
-                </h:panelGrid>
-                <h:panelGrid columns="#{frmTipoPago.estado=='CREAR'?'1':'2'}">
-                    <p:commandButton value="GUARDAR" rendered="#{frmTipoPago.estado=='CREAR'}"
-                                     update=":frmTabla  :pnlDetalle @form"
-                                     actionListener="#{frmTipoPago.btnGuardarHandler}"/>
-                    <p:commandButton value="MODIFICAR" rendered="#{frmTipoPago.estado=='MODIFICAR'}"
-                                     update=":frmTabla :pnlDetalle @form"
-                                     actionListener="#{frmTipoPago.btnModificarHandler}"/>
-                    <p:commandButton value="ELIMINAR" rendered="#{frmTipoPago.estado=='MODIFICAR'}"
-                                     update=":frmTabla  :pnlDetalle @form"
-                                     actionListener="#{frmTipoPago.btneEliminarHandler}"/>
-                </h:panelGrid>
-            </h:form>
+        <h:panelGroup>
+            <h:commandButton value="Nuevo" actionListener="#{frmTipoPago.btnNuevoHandler}"/>
+            <h:commandButton value="Cancelar" actionListener="#{frmTipoPago.btnCancelarHandler}"
+                             rendered="#{not empty frmTipoPago.registro}"/>
         </h:panelGroup>
-    </f:define>
 
-</f:composition>
+    </h:form>
+
+    <h:panelGroup id="pnlDetalle">
+        <h:form id="frmDetalle" rendered="#{not empty frmTipoPago.registro}">
+
+            <h:panelGrid columns="2">
+                <!-- ID solo visible cuando se está editando (MODIFICAR) -->
+                <h:outputLabel value="ID" for="txtId"/>
+                <h:inputText id="txtId" value="#{frmTipoPago.registro.idTipoPago}" readonly="true" disabled="true"
+                             rendered="#{frmTipoPago.estado == 'MODIFICAR'}"/>
+
+                <h:outputLabel value="Nombre" for="txtNombre"/>
+                <h:inputText size="70" id="txtNombre" value="#{frmTipoPago.registro.nombre}"/>
+
+                <h:outputLabel value="Activo" for="chkActivo"/>
+                <h:selectBooleanCheckbox id="chkActivo" value="#{frmTipoPago.registro.activo}"/>
+            </h:panelGrid>
+
+            <h:panelGrid>
+                <h:messages showSummary="true" showDetail="true"/>
+                <h:panelGrid>
+                    <!-- Mostrar el botón "Guardar" solo en estado CREAR -->
+                    <h:commandButton value="Guardar" actionListener="#{frmTipoPago.btnGuardarHandler}"
+                                     rendered="#{frmTipoPago.estado == 'CREAR'}"/>
+
+                    <!-- Mostrar el botón "Modificar" solo en estado MODIFICAR -->
+                    <h:commandButton value="Modificar" actionListener="#{frmTipoPago.btnGuardarHandler}"
+                                     rendered="#{frmTipoPago.estado == 'MODIFICAR'}"/>
+
+                    <!-- Mostrar el botón "Eliminar" solo en estado MODIFICAR -->
+                    <h:commandButton value="Eliminar" actionListener="#{frmTipoPago.btnEliminarHandler}"
+                                     rendered="#{frmTipoPago.estado == 'MODIFICAR'}"/>
+                </h:panelGrid>
+            </h:panelGrid>
+        </h:form>
+    </h:panelGroup>
+
+</h:body>
+
+</html>
