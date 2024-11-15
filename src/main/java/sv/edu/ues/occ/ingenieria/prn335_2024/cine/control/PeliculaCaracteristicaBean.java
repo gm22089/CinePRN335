@@ -12,7 +12,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 @Stateless
 @LocalBean
 public class PeliculaCaracteristicaBean extends AbstractDataPersist<PeliculaCaracteristica> implements Serializable {
@@ -31,15 +30,25 @@ public class PeliculaCaracteristicaBean extends AbstractDataPersist<PeliculaCara
 
     @Override
     public void create(PeliculaCaracteristica registro) throws IllegalStateException, IllegalArgumentException {
-        super.create(registro);
+        try {
+            super.create(registro);
+        } catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error al crear la característica", e);
+            throw new RuntimeException("Error al guardar la característica de la película", e);
+        }
     }
 
     @Override
     public List<PeliculaCaracteristica> findRange(int first, int max) {
-        return em.createQuery("SELECT p FROM PeliculaCaracteristica p", PeliculaCaracteristica.class)
-                .setFirstResult(first)
-                .setMaxResults(max)
-                .getResultList();
+        try {
+            return em.createQuery("SELECT p FROM PeliculaCaracteristica p", PeliculaCaracteristica.class)
+                    .setFirstResult(first)
+                    .setMaxResults(max)
+                    .getResultList();
+        } catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error al obtener el rango de características", e);
+            return List.of();
+        }
     }
 
     public PeliculaCaracteristica findById(final Long idPeliculaCaracteristica) {
@@ -64,7 +73,7 @@ public class PeliculaCaracteristicaBean extends AbstractDataPersist<PeliculaCara
 
     public List<TipoPelicula> findAllTiposPelicula() {
         try {
-            TypedQuery<TipoPelicula> query = em.createNamedQuery("PeliculaCaracteristica.findAll", TipoPelicula.class);
+            TypedQuery<TipoPelicula> query = em.createNamedQuery("TipoPelicula.findAll", TipoPelicula.class); // Cambié el nombre de la consulta
             return query.getResultList();
         } catch (Exception e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error al buscar todos los tipos de películas", e);
@@ -84,8 +93,26 @@ public class PeliculaCaracteristicaBean extends AbstractDataPersist<PeliculaCara
     }
 
     public List<PeliculaCaracteristica> findByExpresionRegular(String expresionRegular) {
-        return em.createNamedQuery("PeliculaCaracteristica.findByExpresionRegular", PeliculaCaracteristica.class)
-                .setParameter("expresionRegular", expresionRegular)
-                .getResultList();
+        try {
+            return em.createNamedQuery("PeliculaCaracteristica.findByExpresionRegular", PeliculaCaracteristica.class)
+                    .setParameter("expresionRegular", expresionRegular)
+                    .getResultList();
+        } catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error al buscar características por expresión regular", e);
+        }
+        return List.of();
+    }
+
+    public void remove(PeliculaCaracteristica registro) {
+        try {
+            if (registro != null) {
+                em.remove(em.merge(registro));
+            } else {
+                throw new IllegalArgumentException("El registro no puede ser nulo");
+            }
+        } catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error al eliminar la característica", e);
+            throw new RuntimeException("Error al eliminar la característica de la película", e);
+        }
     }
 }

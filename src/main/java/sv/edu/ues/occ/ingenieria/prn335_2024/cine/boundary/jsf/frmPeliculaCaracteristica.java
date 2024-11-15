@@ -7,126 +7,141 @@ import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import org.primefaces.model.FilterMeta;
-import org.primefaces.model.LazyDataModel;
-import org.primefaces.model.SortMeta;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.control.PeliculaCaracteristicaBean;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.Pelicula;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.PeliculaCaracteristica;
+import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.TipoPelicula;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-@Named
+@Named("frmPeliculaCaracteristica")
 @ViewScoped
 public class frmPeliculaCaracteristica implements Serializable {
 
     @Inject
-    FacesContext facesContext;
+    private FacesContext facesContext;
 
     @Inject
-    PeliculaCaracteristicaBean pcBean;
-    LazyDataModel<PeliculaCaracteristica> modelo;
-    PeliculaCaracteristica registro;
+    private PeliculaCaracteristicaBean pcBean;
 
-    Long idPelicula;
+    private List<TipoPelicula> tipoPeliculaList;
 
-    @PostConstruct
-    public void inicializar() {
-        modelo = new LazyDataModel<PeliculaCaracteristica>() {
+    private ESTADO_CRUD estado;
+    private List<PeliculaCaracteristica> registros;
+    private PeliculaCaracteristica registro;
+    private Long idPelicula; // Filtro para asociar las características a una película específica
+    private String regexPattern;
 
-            @Override
-            public String getRowKey(PeliculaCaracteristica object) {
-                if (object != null && object.getIdPeliculaCaracteristica() != null) {
-                    return object.getIdPeliculaCaracteristica().toString();
-                }
-                return null;
+    private static final int PAGE_SIZE = 1000;
+
+    /**
+     *     @PostConstruct
+     *     public void init() {
+     *         estado = ESTADO_CRUD.NINGUNO;
+     *         regexPattern = "^[a-zA-Z0-9_ ]+$"; // Expresión regular para la validación
+     *         cargarRegistros(idPelicula);
+     *         tipoPeliculaList = pcBean.findAllTipoPelicula(); // Cargar la lista de tipos de película
+     *     }
+     *
+     */
+
+    private void cargarRegistros(Long idPelicula) {
+        try {
+            if (idPelicula != null) {
+                registros = pcBean.findByIdPelicula(idPelicula, 0, PAGE_SIZE);
+            } else {
+                registros = pcBean.findAll();
             }
-
-            @Override
-            public PeliculaCaracteristica getRowData(String rowKey) {
-                if (rowKey != null && getWrappedData() != null) {
-                    return getWrappedData().stream().filter(r -> rowKey.trim().equals(r.getIdPeliculaCaracteristica().toString())).findFirst().orElse(null);
-                }
-                return null;
-            }
-
-            @Override
-            public int count(Map<String, FilterMeta> map) {
-                try {
-                    if (idPelicula != null) {
-                        return pcBean.countPelicula(idPelicula);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return 0;
-            }
-
-            @Override
-            public List<PeliculaCaracteristica> load(int desde, int max, Map<String, SortMeta> map, Map<String, FilterMeta> map1) {
-                try {
-                    if (idPelicula != null && desde >= 0 && max > 0) {
-                        return pcBean.findByIdPelicula(idPelicula, desde, max);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return List.of();
-            }
-        };
+        } catch (Exception e) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Error al cargar registros", "No se pudieron cargar los registros de características"));
+            logError(e);
+        }
     }
 
-    public LazyDataModel<PeliculaCaracteristica> getModelo() {
-        return modelo;
-    }
+    /**
+     *
+     *   public void btnSeleccionarRegistroHandler(TipoPelicula tipoPelicula) {
+     *         try {
+     *             this.registro = new PeliculaCaracteristica();
+     *             this.registro.setTipoPelicula(tipoPelicula);
+     *             registros = pcBean.findByTipoPelicula(tipoPelicula); // Cargar las características asociadas a este tipo
+     *
+     *             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+     *                     "Registro seleccionado", "La característica de la película se ha seleccionado correctamente"));
+     *         } catch (Exception e) {
+     *             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+     *                     "Error al seleccionar", "Ocurrió un error al seleccionar el registro"));
+     *             logError(e);
+     *         }
+     *     }
+     */
 
-    public PeliculaCaracteristica getRegistro() {
-        return registro;
-    }
-
-    public void setRegistro(PeliculaCaracteristica registro) {
-        this.registro = registro;
-    }
-
-    public Long getIdPelicula() {
-        return idPelicula;
-    }
-
-    public void setIdPelicula(Long idPelicula) {
-        this.idPelicula = idPelicula;
+    public void btnCancelarHandler(ActionEvent actionEvent) {
+        this.registro = null;
+        this.estado = ESTADO_CRUD.NINGUNO;
     }
 
     public void btnNuevoHandler(ActionEvent actionEvent) {
         this.registro = new PeliculaCaracteristica();
         if (idPelicula != null) {
             Pelicula pelicula = new Pelicula();
-            pelicula.setIdPelicula(idPelicula); // Asigna el ID de la película
-            this.registro.setIdPelicula(pelicula); // Establece la relación
+            pelicula.setIdPelicula(idPelicula);
+            this.registro.setPelicula(pelicula);
         }
         this.estado = ESTADO_CRUD.CREAR;
     }
 
-    public void btnCancelarHandler(ActionEvent ae) {
-        this.registro = null;
+    public void btnGuardarHandler(ActionEvent actionEvent) {
+        FacesMessage mensaje;
+        try {
+            if (estado == ESTADO_CRUD.CREAR) {
+                pcBean.create(registro);
+                mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO,
+                        "Registro guardado con éxito", "La característica se ha creado correctamente");
+            } else if (estado == ESTADO_CRUD.MODIFICAR) {
+                pcBean.update(registro);
+                mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO,
+                        "Registro modificado con éxito", "La característica se ha modificado correctamente");
+            } else {
+                return;
+            }
+            facesContext.addMessage(null, mensaje);
+            this.registro = null;
+            this.estado = ESTADO_CRUD.NINGUNO;
+            cargarRegistros(idPelicula);
+        } catch (Exception e) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Error al guardar el registro", "No se pudo guardar la característica"));
+            logError(e);
+        }
     }
 
-    public void btnGuardarHandler(ActionEvent ae) {
-        pcBean.create(registro);
-        FacesMessage mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Datos guardados exitosamente", null);
-        facesContext.addMessage(null, mensaje);
+    public void btnEliminarHandler(ActionEvent actionEvent) {
+        try {
+            if (registro != null && registro.getIdPeliculaCaracteristica() != null) {
+                pcBean.delete(registro);
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                        "Registro eliminado", "La característica se ha eliminado correctamente"));
+                this.registro = null;
+                cargarRegistros(idPelicula);
+            }
+        } catch (Exception e) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Error al eliminar el registro", "No se pudo eliminar la característica"));
+            logError(e);
+        }
     }
 
-    public void btnEliminarHandler(ActionEvent ae) {
-        pcBean.delete(registro);
-        FacesMessage mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Eliminado exitosamente", null);
-        facesContext.addMessage(null, mensaje);
+    public enum ESTADO_CRUD {
+        NINGUNO,
+        CREAR,
+        MODIFICAR
     }
 
-    public void btnModificarHandler(ActionEvent ae) {
-        pcBean.update(registro);
-        FacesMessage mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Modificado exitosamente", null);
-        facesContext.addMessage(null, mensaje);
+    private void logError(Exception e) {
+        // Implementa un log de errores para depuración
     }
 }

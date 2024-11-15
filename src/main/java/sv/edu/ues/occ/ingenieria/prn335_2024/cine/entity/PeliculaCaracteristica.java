@@ -1,58 +1,62 @@
 package sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "pelicula_caracteristica", schema = "public")
 public class PeliculaCaracteristica {
+
     @Id
-    @Column(name = "id_pelicula_caracteristica", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idPliculaCaracteristica;
+    @Column(name = "id_pelicula_caracteristica", nullable = false)
+    private Long idPeliculaCaracteristica;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_tipo_pelicula")
-    private TipoPelicula idTipoPelicula;
+    @JoinColumn(name = "id_tipo_pelicula", nullable = false)
+    private TipoPelicula tipoPelicula;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_pelicula")
-    private Pelicula idPelicula;
+    @JoinColumn(name = "id_pelicula", nullable = false)
+    private Pelicula pelicula;
 
     @Lob
     @Column(name = "valor")
     private String valor;
 
-    public PeliculaCaracteristica(Long idPliculaCaracteristica) {
-        this.idPliculaCaracteristica = idPliculaCaracteristica;
+    // Constructor vacío
+    public PeliculaCaracteristica() {}
+
+    // Constructor con ID
+    public PeliculaCaracteristica(Long idPeliculaCaracteristica) {
+        this.idPeliculaCaracteristica = idPeliculaCaracteristica;
     }
 
-    public PeliculaCaracteristica()
-    {
-
+    // Getters y setters
+    public Long getIdPeliculaCaracteristica() {
+        return idPeliculaCaracteristica;
     }
 
-    public Long getIdPliculaCaracteristica() {
-        return idPliculaCaracteristica;
+    public void setIdPeliculaCaracteristica(Long idPeliculaCaracteristica) {
+        this.idPeliculaCaracteristica = idPeliculaCaracteristica;
     }
 
-    public void setIdPliculaCaracteristica(Long id) {
-        this.idPliculaCaracteristica = id;
+    public TipoPelicula getTipoPelicula() {
+        return tipoPelicula;
     }
 
-    public TipoPelicula getIdTipoPelicula() {
-        return idTipoPelicula;
+    public void setTipoPelicula(TipoPelicula tipoPelicula) {
+        this.tipoPelicula = tipoPelicula;
     }
 
-    public void setIdTipoPelicula(TipoPelicula idTipoPelicula) {
-        this.idTipoPelicula = idTipoPelicula;
+    public Pelicula getPelicula() {
+        return pelicula;
     }
 
-    public Pelicula getIdPelicula() {
-        return idPelicula;
-    }
-
-    public void setIdPelicula(Pelicula idPelicula) {
-        this.idPelicula = idPelicula;
+    public void setPelicula(Pelicula pelicula) {
+        this.pelicula = pelicula;
     }
 
     public String getValor() {
@@ -62,6 +66,4 @@ public class PeliculaCaracteristica {
     public void setValor(String valor) {
         this.valor = valor;
     }
-
-
 }

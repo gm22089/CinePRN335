@@ -1,25 +1,26 @@
 package sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "tipo_pelicula", schema = "public")
 public class TipoPelicula {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tipo_pelicula_id_gen")
-    @SequenceGenerator(name = "tipo_pelicula_id_gen", sequenceName = "tipo_pelicula_id_tipo_pelicula_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_tipo_pelicula", nullable = false)
     private Integer idTipoPelicula;
 
+    @NotNull
     @Size(max = 155)
-    @Column(name = "nombre", length = 155)
+    @Column(name = "nombre", length = 155, nullable = false)
     private String nombre;
 
-    @Column(name = "activo")
+    @NotNull
+    @Column(name = "activo", nullable = false)
     private Boolean activo;
 
     @Lob
@@ -30,15 +31,25 @@ public class TipoPelicula {
     @Column(name = "expresion_regular")
     private String expresionRegular;
 
-    @OneToMany(mappedBy = "idTipoPelicula")
-    private Set<PeliculaCaracteristica> peliculaCaracteristicas = new LinkedHashSet<>();
+    // Relación OneToMany con PeliculaCaracteristica
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "tipoPelicula")
+    private List<PeliculaCaracteristica> peliculaCaracteristicaList;
 
+    // Constructor vacío
+    public TipoPelicula() {}
+
+    // Constructor con ID
+    public TipoPelicula(Integer idTipoPelicula) {
+        this.idTipoPelicula = idTipoPelicula;
+    }
+
+    // Getters y setters
     public Integer getIdTipoPelicula() {
         return idTipoPelicula;
     }
 
-    public void setIdTipoPelicula(Integer id) {
-        this.idTipoPelicula = id;
+    public void setIdTipoPelicula(Integer idTipoPelicula) {
+        this.idTipoPelicula = idTipoPelicula;
     }
 
     public String getNombre() {
@@ -73,12 +84,11 @@ public class TipoPelicula {
         this.expresionRegular = expresionRegular;
     }
 
-    public Set<PeliculaCaracteristica> getPeliculaCaracteristicas() {
-        return peliculaCaracteristicas;
+    public List<PeliculaCaracteristica> getPeliculaCaracteristicaList() {
+        return peliculaCaracteristicaList;
     }
 
-    public void setPeliculaCaracteristicas(Set<PeliculaCaracteristica> peliculaCaracteristicas) {
-        this.peliculaCaracteristicas = peliculaCaracteristicas;
+    public void setPeliculaCaracteristicaList(List<PeliculaCaracteristica> peliculaCaracteristicaList) {
+        this.peliculaCaracteristicaList = peliculaCaracteristicaList;
     }
-
 }

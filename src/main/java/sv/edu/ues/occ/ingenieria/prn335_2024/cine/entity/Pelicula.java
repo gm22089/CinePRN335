@@ -2,26 +2,14 @@ package sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import jakarta.xml.bind.annotation.XmlRootElement;
-
-import java.util.List;
 
 @Entity
-@Table(name = "pelicula")
-@XmlRootElement
-@NamedQueries({
-        @NamedQuery(name = "Pelicula.findAll", query = "SELECT p FROM Pelicula p"),
-        @NamedQuery(name = "Pelicula.countAll", query = "SELECT Count(p) FROM Pelicula p"),
-        @NamedQuery(name = "Pelicula.findByIdPelicula", query = "SELECT p FROM Pelicula p WHERE p.idPelicula = :idPelicula"),
-        @NamedQuery(name = "Pelicula.findByName", query = "SELECT p FROM Pelicula p WHERE p.nombre = :nombre"),
-        @NamedQuery(name = "Pelicula.findBySinopsis", query = "SELECT p FROM Pelicula p WHERE p.sinopsis = :sinopsis")
-})
+@Table(name = "pelicula", schema = "public")
 public class Pelicula {
-
     @Id
-    @Column(name = "id_pelicula", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idPelicula;
+    @Column(name = "id_pelicula", nullable = false)
+    private Long id;
 
     @Size(max = 255)
     @Column(name = "nombre")
@@ -31,30 +19,15 @@ public class Pelicula {
     @Column(name = "sinopsis")
     private String sinopsis;
 
-    @Column(name = "ACTIVAINTERNA")
-    private boolean activaInterna;
+    @Column(name = "activainterna")
+    private Boolean activainterna;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "idPelicula")
-    public List<PeliculaCaracteristica> PeliculaCaracteristicaList;
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "idPelicula")
-    public List<Programacion> ProgramacionList;
-
-    // Constructores
-    public Pelicula(long idPelicula) {
-        this.idPelicula = idPelicula;
+    public Long getId() {
+        return id;
     }
 
-    public Pelicula() {
-    }
-
-    // Métodos getter y setter
-    public Long getIdPelicula() {
-        return idPelicula;
-    }
-
-    public void setIdPelicula(Long id) {
-        this.idPelicula = id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -73,27 +46,12 @@ public class Pelicula {
         this.sinopsis = sinopsis;
     }
 
-    public boolean isActivaInterna() {
-        return activaInterna;
+    public Boolean getActivainterna() {
+        return activainterna;
     }
 
-    public void setActivaInterna(boolean activaInterna) {
-        this.activaInterna = activaInterna;
+    public void setActivainterna(Boolean activainterna) {
+        this.activainterna = activainterna;
     }
 
-    public List<PeliculaCaracteristica> getPeliculaCaracteristicaList() {
-        return PeliculaCaracteristicaList;
-    }
-
-    public void setPeliculaCaracteristicaList(List<PeliculaCaracteristica> peliculaCaracteristicaList) {
-        PeliculaCaracteristicaList = peliculaCaracteristicaList;
-    }
-
-    public List<Programacion> getProgramacionList() {
-        return ProgramacionList;
-    }
-
-    public void setProgramacionList(List<Programacion> programacionList) {
-        ProgramacionList = programacionList;
-    }
 }

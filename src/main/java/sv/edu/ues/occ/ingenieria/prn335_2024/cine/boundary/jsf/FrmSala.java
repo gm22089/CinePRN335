@@ -174,12 +174,15 @@ public class FrmSala extends AbstractFrm<Sala> implements Serializable {
         fc.addMessage(null, new FacesMessage("se han encontrado: ", String.valueOf(programacionesBySala.size())));
     }
 
-    @Override
-    public void inicioRegistros() {
-        root = new TreeNodeBuilder<Sucursal, Sala>(suBean.getSucursalAnsSalas()).getRoot();
-        System.out.println(root.getChildCount());
+    /**
+     *    @Override
+     *     public void inicioRegistros() {
+     *         root = new TreeNodeBuilder<Sucursal, Sala>(suBean.getSucursalAnsSalas()).getRoot();
+     *         System.out.println(root.getChildCount());
+     *
+     *     }
+     */
 
-    }
 //    public void onNodeSelect(NodeSelectEvent event) {
 //        // Verificar si el nodo seleccionado es padre o hijo
 //        String nombre=(selectedNode.getData() instanceof Sucursal)?((Sucursal)selectedNode.getData()).getNombre():((Sala)selectedNode.getData()).getNombre();

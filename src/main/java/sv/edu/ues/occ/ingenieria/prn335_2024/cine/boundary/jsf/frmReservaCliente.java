@@ -127,12 +127,15 @@ public class frmReservaCliente extends AbstractFrm<Reserva> implements Serializa
         return "";
     }
 
-    @Override
-    public void inicioRegistros(){
-        root=new TreeNodeBuilder< Sucursal, Sala >(sucursalBean.getSucursalAnsSalas()).getRoot();
-        sucursales=sucursalBean.getAllSucursales();
-
-    }
+    /**
+     *  @Override
+     *     public void inicioRegistros(){
+     *         root=new TreeNodeBuilder< Sucursal, Sala >(sucursalBean.getSucursalAnsSalas()).getRoot();
+     *         sucursales=sucursalBean.getAllSucursales();
+     *
+     *     }
+     * @param event
+     */
 
     public void onNodeSelect(NodeSelectEvent event) {
         // Verificar si el nodo seleccionado es padre o hijo
