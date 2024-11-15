@@ -1,22 +1,21 @@
 package sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity;
+
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import java.io.Serializable;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "tipo_reserva", schema = "public")
-public class TipoReserva implements Serializable {
-
-
+public class TipoReserva {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tipo_reserva_id_gen")
+    @SequenceGenerator(name = "tipo_reserva_id_gen", sequenceName = "tipo_reserva_id_tipo_reserva_seq", allocationSize = 1)
     @Column(name = "id_tipo_reserva", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idTipoReserva;
 
-    @NotBlank
-    @Size(max = 155, min = 3)
+    @Size(max = 155)
     @Column(name = "nombre", length = 155)
     private String nombre;
 
@@ -27,15 +26,8 @@ public class TipoReserva implements Serializable {
     @Column(name = "comentarios")
     private String comentarios;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "idTipoReserva")
-    public List<Reserva> ReservaList;
-
-    public TipoReserva(Integer idTipoReserva)
-    {
-        this.idTipoReserva = idTipoReserva;
-    }
-
-    public TipoReserva() {}
+    @OneToMany(mappedBy = "idTipoReserva")
+    private Set<Reserva> reservas = new LinkedHashSet<>();
 
     public Integer getIdTipoReserva() {
         return idTipoReserva;
@@ -69,12 +61,12 @@ public class TipoReserva implements Serializable {
         this.comentarios = comentarios;
     }
 
-    public List<Reserva> getReservaList() {
-        return ReservaList;
+    public Set<Reserva> getReservas() {
+        return reservas;
     }
 
-    public void setReservaList(List<Reserva> reservaList) {
-        ReservaList = reservaList;
+    public void setReservas(Set<Reserva> reservas) {
+        this.reservas = reservas;
     }
+
 }
-

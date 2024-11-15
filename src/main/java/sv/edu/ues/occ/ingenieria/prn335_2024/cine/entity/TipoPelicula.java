@@ -2,12 +2,21 @@ package sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serializable;
 import java.util.List;
 
-@Entity
+
 @Table(name = "tipo_pelicula", schema = "public")
-public class TipoPelicula {
+@Entity
+@NamedQueries({
+        @NamedQuery(name = "TipoPelicula.findAll", query = "SELECT t FROM TipoPelicula t"),
+        @NamedQuery(name = "TipoPelicula.findByName", query = "SELECT t FROM TipoPelicula t WHERE t.nombre LIKE :nombre"),
+        @NamedQuery(name = "TipoPelicula.countActive", query = "SELECT COUNT(t) FROM TipoPelicula t WHERE t.activo = true"),
+        @NamedQuery(name = "TipoPelicula.findByExpresionRegular", query = "SELECT t FROM TipoPelicula t WHERE t.expresionRegular = :expresionRegular")
+})
+public class TipoPelicula implements Serializable {
     @Id
     @Column(name = "id_tipo_pelicula", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

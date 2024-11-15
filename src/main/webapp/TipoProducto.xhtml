@@ -1,82 +1,94 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Created by IntelliJ IDEA.
-  User: user
-  Date: 26/10/24
-  Time: 23:30
--->
-
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui">
-
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
 
 <h:head>
-    <title>TIPO PRODUCTO</title>
+    <title>Tipo de Producto</title>
 </h:head>
 
 <h:body>
-    <p:outputLabel value="TipoProducto"/>
-    <h:form id="frmTabla">
-        <p:dataTable value="#{frmTipoProducto.modelo}" var="r"
-                     lazy="true"
-                     paginator="true"
-                     rows="5"
-                     first="0"
-                     selectionMode="single"
-                     selection="#{frmTipoProducto.registro}"
-                     rendered="#{empty frmTipoProducto.registro}"
-        >
-            <p:ajax process="@this" update=":pnlDetalle @form" event="rowSelect"
-                    listener="#{frmTipoProducto.selecionarFila}"/>
-            <p:column headerText="ID"><h:outputText value="#{r.idTipoProducto}"/></p:column>
-            <p:column headerText="NOMBRE"><h:outputText value="#{r.nombre}"/></p:column>
-            <p:column headerText="ACTIVO"><h:outputText value="#{r.activo}"/></p:column>
-            <p:column headerText="COMENTARIOS"><h:outputText value="#{r.comentarios}"/></p:column>
+    <h1>Tipo de Producto</h1>
 
-        </p:dataTable>
-        <h:panelGrid columns="2">
-            <p:commandButton value="CANCELAR" rendered="#{frmTipoProducto.estado ne 'NINGUNO'}"
-                             update=":pnlDetalle @form" actionListener="#{frmTipoProducto.btnCancelarHandler}"/>
-            <p:commandButton value="NUEVO" update=":pnlDetalle @form"
-                             actionListener="#{frmTipoProducto.btnNuevoHandler}"/>
-        </h:panelGrid>
-        <p:growl id="growl" showDetail="true" sticky="false" life="1500"/>
+    <h:form id="frmTabla">
+        <h:dataTable value="#{frmTipoProducto.registros}" var="r">
+
+            <h:column>
+                <f:facet name="header">
+                    ID
+                </f:facet>
+                <h:outputText value="#{r.idTipoProducto}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">
+                    Nombre
+                </f:facet>
+                <h:outputText value="#{r.nombre}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">
+                    Estado
+                </f:facet>
+                <h:outputText value="#{r.activo ? 'ACTIVO' : 'INACTIVO'}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">
+                    Comentarios
+                </f:facet>
+                <h:outputText value="#{r.comentarios}"/>
+            </h:column>
+
+            <h:column>
+                <h:commandButton value="Seleccionar"
+                                 actionListener="#{frmTipoProducto.btnSeleccionarRegistroHandler(r.idTipoProducto)}">
+                    <f:ajax render="pnlDetalle btnCancelar btnModificar btnEliminar" execute="@form"/>
+                </h:commandButton>
+            </h:column>
+
+        </h:dataTable>
+
+        <h:panelGroup>
+            <!-- Botón de Cancelar, se renderiza si el estado es CREAR o MODIFICAR -->
+            <h:commandButton value="Cancelar" actionListener="#{frmTipoProducto.btnCancelarHandler}"
+                             id="btnCancelar"
+                             rendered="#{frmTipoProducto.estado == 'MODIFICAR' or frmTipoProducto.estado == 'CREAR'}"/>
+            <h:commandButton value="Nuevo" actionListener="#{frmTipoProducto.btnNuevoHandler}"/>
+        </h:panelGroup>
     </h:form>
 
     <h:panelGroup id="pnlDetalle">
-        <h:form rendered="#{not empty frmTipoProducto.registro}" id="frmDetalle">
+        <h:form id="frmDetalle" rendered="#{not empty frmTipoProducto.registro}">
+
             <h:panelGrid columns="2">
-                <p:outputLabel value="ID" for="txtid"/>
-                <p:inputText id="txtid" value="#{frmTipoProducto.registro.idTipoProducto}" readonly="true"
-                             disabled="true"/>
+                <h:outputLabel value="ID" for="txtId"/>
+                <h:inputText id="txtId" value="#{frmTipoProducto.registro.idTipoProducto}" readonly="true" disabled="true"/>
 
-                <p:outputLabel value="Nombre" for="txtNombre"/>
-                <p:inputText id="txtNombre" value="#{frmTipoProducto.registro.nombre}" size="70"/>
+                <h:outputLabel value="Nombre" for="txtNombre"/>
+                <h:inputText size="70" id="txtNombre" value="#{frmTipoProducto.registro.nombre}"/>
 
-                <p:outputLabel value="Nombre" for="chkActivo"/>
-                <p:selectBooleanCheckbox id="chkActivo" value="#{frmTipoProducto.registro.activo}" size="70"/>
+                <h:outputLabel value="Activo" for="chkActivo"/>
+                <h:selectBooleanCheckbox id="chkActivo" value="#{frmTipoProducto.registro.activo}"/>
 
-                <p:outputLabel value="Descripcion" for="txtDescripcion"/>
-                <p:inputText id="txtDescripcion" value="#{frmTipoProducto.registro.comentarios}" size="70"/>
-
-
+                <h:outputLabel for="txtComentarios" value="Comentarios"/>
+                <h:inputTextarea id="txtComentarios" value="#{frmTipoProducto.registro.comentarios}" cols="70" rows="3"/>
             </h:panelGrid>
-            <h:panelGrid columns="3">
-                <p:commandButton value="GUARDAR" rendered="#{frmTipoProducto.estado=='CREAR'}"
-                                 update=":frmTabla  :pnlDetalle @form"
-                                 actionListener="#{frmTipoProducto.btnGuardarHandler}"/>
-                <p:commandButton value="MODIFICAR" rendered="#{frmTipoProducto.estado=='MODIFICAR'}"
-                                 update=":frmTabla :pnlDetalle @form"
-                                 actionListener="#{frmTipoProducto.btnModificarHandler}"/>
-                <p:commandButton value="ELIMINAR" rendered="#{frmTipoProducto.estado=='MODIFICAR'}"
-                                 update=":frmTabla  :pnlDetalle @form"
-                                 actionListener="#{frmTipoProducto.btneEliminarHandler}"/>
+
+            <h:panelGrid>
+                <h:messages showSummary="true" showDetail="true"/>
+                <h:panelGrid>
+                    <!-- El botón Guardar solo se muestra si el estado es CREAR -->
+                    <h:commandButton value="Guardar" actionListener="#{frmTipoProducto.btnGuardarHandler}"
+                                     rendered="#{frmTipoProducto.estado == 'CREAR'}"/>
+                    <!-- El botón Modificar solo se muestra si el estado es MODIFICAR -->
+                    <h:commandButton value="Modificar" actionListener="#{frmTipoProducto.btnModificarHandler}"
+                                     id="btnModificar"
+                                     rendered="#{frmTipoProducto.estado == 'MODIFICAR'}"/>
+                    <!-- El botón Eliminar solo se muestra si el estado es MODIFICAR -->
+                    <h:commandButton value="Eliminar" actionListener="#{frmTipoProducto.btnEliminarHandler}"
+                                     id="btnEliminar"
+                                     rendered="#{frmTipoProducto.estado == 'MODIFICAR'}"/>
+                </h:panelGrid>
             </h:panelGrid>
         </h:form>
     </h:panelGroup>
 </h:body>
-
 </html>
