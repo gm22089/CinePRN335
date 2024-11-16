@@ -84,15 +84,18 @@ public class frmPeliculaCaracteristica implements Serializable {
         this.estado = ESTADO_CRUD.NINGUNO;
     }
 
-    public void btnNuevoHandler(ActionEvent actionEvent) {
-        this.registro = new PeliculaCaracteristica();
-        if (idPelicula != null) {
-            Pelicula pelicula = new Pelicula();
-            pelicula.setIdPelicula(idPelicula);
-            this.registro.setPelicula(pelicula);
-        }
-        this.estado = ESTADO_CRUD.CREAR;
-    }
+    /**
+     *   public void btnNuevoHandler(ActionEvent actionEvent) {
+     *         this.registro = new PeliculaCaracteristica();
+     *         if (idPelicula != null) {
+     *             Pelicula pelicula = new Pelicula();
+     *             pelicula.setIdPelicula(idPelicula);
+     *             this.registro.setPelicula(pelicula);
+     *         }
+     *         this.estado = ESTADO_CRUD.CREAR;
+     *     }
+     *
+     */
 
     public void btnGuardarHandler(ActionEvent actionEvent) {
         FacesMessage mensaje;

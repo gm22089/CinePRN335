@@ -3,17 +3,19 @@ package sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "sala", schema = "public")
-@NamedQueries(
-        {
-                @NamedQuery(name = "Sala.findByIdTipoSala", query = "select s from SalaCaracteristica sc JOIN sc.idSala s WHERE sc.idTipoSala.idTipoSala = :idTipoSala group by s.idSala order by s.nombre ASC")
-        }
-)
-public class Sala {
+@NamedQueries({
+        @NamedQuery(name = "Sala.findAll", query = "SELECT s FROM Sala s"),
+        @NamedQuery(name = "Sala.findByName", query = "SELECT s FROM Sala s WHERE LOWER(s.nombre) LIKE LOWER(:nombre) ORDER BY s.nombre ASC"),
+        @NamedQuery(name = "Sala.countActive", query = "SELECT COUNT(s) FROM Sala s WHERE s.activo = true"),
+        @NamedQuery(name = "Sala.findByIdTipoSala", query = "SELECT s FROM SalaCaracteristica sc JOIN sc.idSala s WHERE sc.idTipoSala.idTipoSala = :idTipoSala GROUP BY s.idSala ORDER BY s.nombre ASC")
+})
+public class Sala implements Serializable {
     @Id
     @Column(name = "id_sala", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,20 +37,19 @@ public class Sala {
     private String observaciones;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "idSala")
-    public List<Asiento> asientoList;
+    private List<Asiento> asientoList = new ArrayList<>();  // Inicialización de la lista
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "idSala")
-    public List<SalaCaracteristica> SalaCaracteristcaList;
+    private List<SalaCaracteristica> salaCaracteristicaList = new ArrayList<>();  // Corregido el nombre de la lista
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "idSala")
-    public List<Programacion> ProgramacionList;
+    private List<Programacion> programacionList = new ArrayList<>();  // Inicialización de la lista
+
+    public Sala() {
+    }
 
     public Sala(Integer idSala) {
         this.idSala = idSala;
-    }
-
-    public Sala() {
-
     }
 
     public Integer getIdSala() {
@@ -99,20 +100,19 @@ public class Sala {
         this.asientoList = asientoList;
     }
 
-    public List<SalaCaracteristica> getSalaCaracteristcaList() {
-        return SalaCaracteristcaList;
+    public List<SalaCaracteristica> getSalaCaracteristicaList() {
+        return salaCaracteristicaList;
     }
 
-    public void setSalaCaracteristcaList(List<SalaCaracteristica> salaCaracteristcaList) {
-        SalaCaracteristcaList = salaCaracteristcaList;
+    public void setSalaCaracteristicaList(List<SalaCaracteristica> salaCaracteristicaList) {
+        this.salaCaracteristicaList = salaCaracteristicaList;
     }
 
     public List<Programacion> getProgramacionList() {
-        return ProgramacionList;
+        return programacionList;
     }
 
     public void setProgramacionList(List<Programacion> programacionList) {
-        ProgramacionList = programacionList;
+        this.programacionList = programacionList;
     }
-
 }
