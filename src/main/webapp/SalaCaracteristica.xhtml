@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core"
+>
+<h:body>
+    <h:form id="formSalaCaracteristica">
+        <p:panel header="Gestión de Sala Característica">
+            <p:messages id="messages" autoUpdate="true"/>
+
+            <p:panelGrid columns="2" style="width: 100%; margin-bottom: 20px;">
+                <!-- Nombre -->
+                <h:outputLabel for="nombre" value="Nombre:"/>
+                <p:inputText id="nombre" value="#{frmSalaCaracteristica.registro.nombre}" required="true"
+                             requiredMessage="El nombre es obligatorio" />
+
+                <!-- Descripción -->
+                <h:outputLabel for="descripcion" value="Descripción:"/>
+                <p:inputTextarea id="descripcion" value="#{frmSalaCaracteristica.registro.descripcion}" autoResize="true"/>
+
+                <!-- Estado -->
+                <h:outputLabel for="activo" value="Estado:"/>
+                <p:selectOneMenu id="activo" value="#{frmSalaCaracteristica.registro.activo}">
+                    <f:selectItem itemLabel="Seleccione" itemValue="" />
+                    <f:selectItem itemLabel="Activo" itemValue="true" />
+                    <f:selectItem itemLabel="Inactivo" itemValue="false" />
+                </p:selectOneMenu>
+            </p:panelGrid>
+
+            <!-- Botones -->
+            <p:commandButton value="Guardar" action="#{frmSalaCaracteristica.btnGuardarHandler}" update=":formSalaCaracteristica" />
+            <p:commandButton value="Nuevo" action="#{frmSalaCaracteristica.btnNuevoHandler}" update=":formSalaCaracteristica" />
+            <p:commandButton value="Cancelar" action="#{frmSalaCaracteristica.btnCancelarHandler}" update=":formSalaCaracteristica" />
+        </p:panel>
+
+        <!-- Tabla de registros -->
+        <p:dataTable value="#{frmSalaCaracteristica.registros}" var="sala" paginator="true" rows="10">
+            <p:column headerText="ID">
+                <h:outputText value="#{sala.idSalaCaracteristica}" />
+            </p:column>
+            <p:column headerText="Nombre">
+                <h:outputText value="#{sala.nombre}" />
+            </p:column>
+            <p:column headerText="Descripción">
+                <h:outputText value="#{sala.descripcion}" />
+            </p:column>
+            <p:column headerText="Estado">
+                <h:outputText value="#{sala.activo ? 'Activo' : 'Inactivo'}" />
+            </p:column>
+            <p:column headerText="Acciones">
+                <p:commandButton value="Editar" action="#{frmSalaCaracteristica.btnSeleccionarRegistroHandler(sala.idSalaCaracteristica)}" update=":formSalaCaracteristica" />
+                <p:commandButton value="Eliminar" action="#{frmSalaCaracteristica.btnEliminarHandler}" update=":formSalaCaracteristica" />
+            </p:column>
+        </p:dataTable>
+    </h:form>
+</h:body>
+</html>
