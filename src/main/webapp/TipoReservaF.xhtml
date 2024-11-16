@@ -15,7 +15,7 @@
         xmlns:p="primefaces"
 >
 <h:head>
-
+    <h:outputStylesheet name="estilos/styles.css"/>
     <title>Title</title>
 
 </h:head>
@@ -52,9 +52,10 @@
 
         <h:panelGroup>
             <h:panelGrid columns="1">
-                <h:commandButton ajax="true" process="@this" value="Nuevo" update=":pnlDetalle" actionListener="#{frmTipoReservaF.btnNuevoHandler}"
+                <h:commandButton ajax="true" process="@this" value="Nuevo" update=":pnlDetalle"
+                                 actionListener="#{frmTipoReservaF.btnNuevoHandler}"
                 />
-                <h:outputText value="" /> <!-- Celda vacía para cumplir con columns="2" -->
+                <h:outputText value=""/> <!-- Celda vacía para cumplir con columns="2" -->
             </h:panelGrid>
 
             <p:message showSummary="true" showDetail="true"/>
