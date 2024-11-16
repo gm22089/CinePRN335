@@ -2,7 +2,6 @@ package sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +11,13 @@ import java.util.List;
 @NamedQueries({
         @NamedQuery(name = "Sala.findAll", query = "SELECT s FROM Sala s"),
         @NamedQuery(name = "Sala.findByName", query = "SELECT s FROM Sala s WHERE LOWER(s.nombre) LIKE LOWER(:nombre) ORDER BY s.nombre ASC"),
+        @NamedQuery(name = "Sala.findByIdSala", query = "SELECT s FROM Sala s WHERE s.idSala = :idSala"),
+        @NamedQuery(name = "Sala.findSalBySucursal", query = "SELECT s FROM Sala s WHERE s.idSucursal = :sucursal"),
         @NamedQuery(name = "Sala.countActive", query = "SELECT COUNT(s) FROM Sala s WHERE s.activo = true"),
         @NamedQuery(name = "Sala.findByIdTipoSala", query = "SELECT s FROM SalaCaracteristica sc JOIN sc.idSala s WHERE sc.idTipoSala.idTipoSala = :idTipoSala GROUP BY s.idSala ORDER BY s.nombre ASC")
 })
 public class Sala implements Serializable {
+
     @Id
     @Column(name = "id_sala", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,8 +58,8 @@ public class Sala implements Serializable {
         return idSala;
     }
 
-    public void setIdSala(Integer id) {
-        this.idSala = id;
+    public void setIdSala(Integer idSala) {
+        this.idSala = idSala;
     }
 
     public Sucursal getIdSucursal() {
@@ -114,5 +116,26 @@ public class Sala implements Serializable {
 
     public void setProgramacionList(List<Programacion> programacionList) {
         this.programacionList = programacionList;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (idSala != null ? idSala.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof Sala)) {
+            return false;
+        }
+        Sala other = (Sala) object;
+        return this.idSala != null && this.idSala.equals(other.idSala);
+    }
+
+    @Override
+    public String toString() {
+        return "sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.Sala[ idSala=" + idSala + " ]";
     }
 }

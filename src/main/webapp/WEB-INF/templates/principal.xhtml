@@ -10,41 +10,62 @@
 <h:head>
     <title>
         <f:insert name="titulo">
-        Titulo de la pagina
-    </f:insert>
+            Titulo de la pagina
+        </f:insert>
     </title>
-    <h:outputStylesheet library="estilos" name="basico_templete.css"/>
+    <h:outputStylesheet library="estilos" name="styles.css"/>
 </h:head>
+
+
 <h:body>
     <div class="ui-g">
-        <p:growl id="growl" showDetail="true" sticky="false" life="1500"/>
-        <div class="">
+        <p:growl id="growl" showDetail="true" sticky="false" life="1500" />
+        <!--    menu-->
+        <div class="ui-g-12 ui-md-2">
             <h:form id="frmMenuPrincipal">
-                <p:outputLabel value="jajaj"/>
-                <p:menu model="#{frmMenu.model}" appendTo="body" toggleable="true">
-
-                </p:menu>
+                <p:menu model="#{frmMenu.model}" appendTo="body" toggleable="true"/>
             </h:form>
         </div>
-        <div class="ui-g-12 ui-md-12">
-            <div class="ui-g-12">
-                <h1>
-                    <f:insert name="titulo">
-                        Titulo de la pagina
-                    </f:insert>
-                </h1>
+        <div class="ui-g-12 ui-md-10 ui-g-nopad">
+            <div class="ui-g-12" id="sesion">
+                <p:toolbar>
+                    <p:toolbarGroup align="right">
+                        <h:form id="frmIdioma">
+                            <p:selectOneMenu value="#{sesionUsuario.idiomaSelecionado}"
+                                             valueChangeListener="#{sesionUsuario.CambiarIdioma}">
+                                <c:selectItem noSelectionOption="true" itemValue="#{null}" itemLabel="Idioma"/>
+                                <c:selectItems value="#{sesionUsuario.idiomas.entrySet()}" var="idioma"
+                                               itemValue="#{idioma.key}" itemLabel="#{idioma.key}"/>
+                                <c:ajax execute="@form" render="@all"/>
+                            </p:selectOneMenu>
+                            <p:commandButton type="button" icon="pi pi-user" styleClass="mr-2"/>
+                        </h:form>
+                    </p:toolbarGroup>
+                </p:toolbar>
             </div>
-            <div class="ui-g-12 ui-g-nopad">
-                <div class="ui-g-12"
-                     style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <f:insert name="cuerpo">
-                        cuerpo de la pagina
-                    </f:insert>
+            <div class="ui-g-12">
+                <div class="ui-g-12">
+                    <h1>
+                        <f:insert name="titulo">
+                            Titulo de la pagina
+                        </f:insert>
+                    </h1>
+                </div>
+                <div class="ui-g-12 ui-g-nopad">
+                    <div class="ui-g-12" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <h1>
+                            <f:insert name="cuerpo">
+                                cuerpo de la pagina
+                            </f:insert>
+                        </h1>
+
+                    </div>
                 </div>
             </div>
-        </div>
 
+        </div>
     </div>
+
     <div class="ui-g-12">
         Todos los derechos reservados por ... @2024
     </div>

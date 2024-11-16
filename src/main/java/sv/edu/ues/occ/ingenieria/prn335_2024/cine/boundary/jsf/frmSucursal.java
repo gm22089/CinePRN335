@@ -31,7 +31,7 @@ public class frmSucursal implements Serializable {
     public void init() {
         estado = ESTADO_CRUD.NINGUNO;
         try {
-            registros = sucursalBean.findRange(0, 1000000);
+            registros = sucursalBean.findRange(0, Integer.MAX_VALUE);
             System.out.println("Registros cargados: " + registros.size());
         } catch (Exception e) {
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,

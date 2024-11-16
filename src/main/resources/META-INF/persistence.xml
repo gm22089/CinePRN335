@@ -27,5 +27,10 @@
         <class>sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.Sala</class>
         <class>sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.SalaCaracteristica</class>
         <class>sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.Sucursal</class>
+        <properties>
+            <property name="javax.persistence.schema-generation.database.action" value="none" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+            <property name="hibernate.show_sql" value="true" />
+        </properties>
     </persistence-unit>
 </persistence>

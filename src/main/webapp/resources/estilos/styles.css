@@ -1,0 +1,141 @@
+/* General body styles */
+body {
+    font-family: "Arial", sans-serif;
+    background-color: #ffffff; /* Fondo blanco */
+    color: #000000; /* Letras negras */
+    margin: 0;
+    padding: 0;
+}
+
+/* Header styles */
+header {
+    background-color: #1a73e8; /* Azul Google */
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+/* Tabla de registros */
+h\:dataTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 0.9em; /* Tamaño reducido */
+    background-color: white;
+    border: 1px solid #ddd; /* Bordes suaves */
+}
+
+h\:dataTable th,
+h\:dataTable td {
+    text-align: left;
+    padding: 8px; /* Cuadros pequeños */
+}
+
+h\:dataTable th {
+    background-color: #1a73e8; /* Azul Google */
+    color: white;
+    border-bottom: 2px solid #155ab7; /* Línea divisoria */
+}
+
+h\:dataTable tr:nth-child(even) {
+    background-color: #f2f6fc; /* Azul muy claro */
+}
+
+h\:dataTable tr:hover {
+    background-color: #e3ecfa; /* Azul suave al pasar el ratón */
+}
+
+h\:dataTable td {
+    border: 1px solid #ddd; /* Bordes suaves */
+}
+
+/* Botones */
+h\:commandButton {
+    background-color: #1a73e8; /* Azul Google */
+    color: white;
+    border: none;
+    padding: 8px 12px; /* Tamaño compacto */
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+h\:commandButton:hover {
+    background-color: #155ab7; /* Azul más oscuro */
+    transform: scale(1.05); /* Pequeño efecto de zoom */
+}
+
+/* Formulario */
+form label {
+    font-weight: bold;
+    color: #000; /* Letras negras */
+    margin-bottom: 5px;
+}
+
+
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+    border-color: #1a73e8; /* Azul */
+    box-shadow: 0 0 3px rgba(106, 149, 205, 0.5); /* Resaltado */
+    outline: none;
+}
+
+form input[type="submit"] {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9em;
+    padding: 8px 16px; /* Compacto */
+    border-radius: 4px;
+}
+
+form input[type="submit"]:hover {
+    background-color: #155ab7;
+}
+
+/* Paneles */
+h\:panelGrid {
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+}
+
+/* Títulos */
+h1 {
+    color: #000; /* Negro */
+    font-size: 1.5em; /* Más pequeño */
+    margin-bottom: 10px;
+}
+
+/* Mensajes */
+h\:messages {
+    color: #d32f2f; /* Rojo para errores */
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+    h\:dataTable th, h\:dataTable td {
+        padding: 5px; /* Más compacto en pantallas pequeñas */
+        font-size: 0.8em;
+    }
+
+    h\:commandButton {
+        font-size: 0.8em;
+        padding: 6px 10px;
+    }
+}

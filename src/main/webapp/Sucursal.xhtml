@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core">
 <h:head>
+    <h:outputStylesheet name="estilos/styles.css" />
     <title>Lista de Sucursales</title>
 </h:head>
 
@@ -50,7 +51,7 @@
 
         <!-- Botones para nuevas acciones -->
         <h:panelGroup>
-            <h:commandButton value="Cancelar" actionListener="#{frmSucursal.btnCancelarHandler}" />
+
             <h:commandButton value="Nuevo" actionListener="#{frmSucursal.btnNuevoHandler}" />
         </h:panelGroup>
     </h:form>
@@ -59,23 +60,18 @@
     <h:panelGroup id="pnlDetalle">
         <h:form id="frmDetalle" rendered="#{not empty frmSucursal.registro}">
             <h:panelGrid columns="2">
-                <!-- ID de la Sucursal -->
                 <h:outputLabel value="ID" for="txtId" />
                 <h:inputText id="txtId" value="#{frmSucursal.registro.idSucursal}" readonly="true" disabled="true"/>
 
-                <!-- Nombre de la Sucursal -->
                 <h:outputLabel value="Nombre" for="txtNombre" />
                 <h:inputText id="txtNombre" value="#{frmSucursal.registro.nombre}" size="70"/>
 
-                <!-- Estado (Activo/Inactivo) -->
                 <h:outputLabel value="Estado" for="chkActivo" />
                 <h:selectBooleanCheckbox id="chkActivo" value="#{frmSucursal.registro.activo}" />
 
-                <!-- Coordenadas -->
                 <h:outputLabel value="Coordenadas" for="txtCoordenadas" />
                 <h:outputText id="txtCoordenadas" value="#{frmSucursal.registro.latitud}, #{frmSucursal.registro.longitud}" />
 
-                <!-- Comentarios -->
                 <h:outputLabel value="Comentarios" for="txtComentarios" />
                 <h:inputTextarea id="txtComentarios" value="#{frmSucursal.registro.comentarios}" cols="70" rows="3"/>
             </h:panelGrid>
@@ -85,6 +81,7 @@
 
             <!-- Botones para guardar, modificar o eliminar -->
             <h:panelGrid>
+                <h:commandButton value="Cancelar" actionListener="#{frmSucursal.btnCancelarHandler}" />
                 <h:commandButton value="Guardar" actionListener="#{frmSucursal.btnGuardarHandler}" rendered="#{frmSucursal.estado == 'CREAR'}"/>
                 <h:commandButton value="Modificar" actionListener="#{frmSucursal.btnGuardarHandler}" rendered="#{frmSucursal.estado == 'MODIFICAR'}"/>
                 <h:commandButton value="Eliminar" actionListener="#{frmSucursal.btnEliminarHandler}" rendered="#{frmSucursal.estado == 'MODIFICAR'}"/>
