@@ -83,7 +83,7 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>3.10</version>
                 <configuration>
-                    <installDirectory>/usr/local/openliberty/wlp10_24_0_08</installDirectory>
+                    <installDirectory>/usr/local/openlibÑerty/wlp10_24_0_08</installDirectory>
                     <serverName>prn335_2024</serverName>
                 </configuration>
             </plugin>
