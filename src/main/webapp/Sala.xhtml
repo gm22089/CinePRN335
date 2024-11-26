@@ -1,117 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html"
-      xmlns:f="jakarta.faces.core"
->
-<h:head>
-    <h:outputStylesheet name="estilos/styles.css" />
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
 
-    <title>Lista de Salas</title>
+<h:head>
+    <h:outputStylesheet name="estilos/styles.css"/>
+    <title>Gestión de Salas</title>
 </h:head>
 
-
 <h:body>
-    <h1>Lista de Salas</h1>
+    <h:form id="frmPrincipal">
+        <!-- Sección de búsqueda -->
+        <h3>Buscar Salas</h3>
+        <p:outputLabel for="txtBusqueda" value="Nombre de sala: "/>
+        <p:inputText id="txtBusqueda" value="#{frmSala.registro.nombre}" size="30"/>
+        <p:commandButton value="Buscar" action="#{frmSala.registro.nombre}" update="tablaSalas"/>
 
-    <!-- Tabla de registros -->
-    <h:form id="frmTabla">
-        <h:dataTable value="#{frmSala.registros}" var="r" border="1">
-            <!-- Columna: ID -->
-            <h:column>
-                <f:facet name="header">ID</f:facet>
-                <h:outputText value="#{r.idSala}"/>
-            </h:column>
+        <!-- Tabla de Salas -->
+        <h3>Lista de Salas</h3>
+        <p:dataTable id="tablaSalas" value="#{frmSala.registros}" var="sala"
+                     paginator="true" rows="10" selection="#{frmSala.registro}"
+                     selectionMode="single" rowKey="#{frmSala.registro.idSala}">
+            <p:ajax event="rowSelect" listener="#{frmSala.selecionarFila}" update=":pnlDetalle :frmPrincipal"/>
 
-            <!-- Columna: Sucursal -->
-            <h:column>
-                <f:facet name="header">Sucursal</f:facet>
-                <h:outputText value="#{r.idSucursal.nombre}"/>
-            </h:column>
+            <p:column headerText="ID">
+                <h:outputText value="#{sala.idSala}"/>
+            </p:column>
+            <p:column headerText="Nombre">
+                <h:outputText value="#{sala.nombre}"/>
+            </p:column>
+            <p:column headerText="Sucursal">
+                <h:outputText value="#{sala.idSucursal.nombre}"/>
+            </p:column>
+            <p:column headerText="Activo">
+                <h:outputText value="#{sala.activo ? 'Sí' : 'No'}"/>
+            </p:column>
+        </p:dataTable>
 
-            <!-- Columna: Nombre -->
-            <h:column>
-                <f:facet name="header">Nombre</f:facet>
-                <h:outputText value="#{r.nombre}"/>
-            </h:column>
-
-            <!-- Columna: Estado -->
-            <h:column>
-                <f:facet name="header">Estado</f:facet>
-                <h:outputText value="#{r.activo ? 'Activo' : 'Inactivo'}"/>
-            </h:column>
-
-            <!-- Columna: Observaciones -->
-            <h:column>
-                <f:facet name="header">Observaciones</f:facet>
-                <h:outputText value="#{r.observaciones}"/>
-            </h:column>
-
-            <!-- Botón: Seleccionar -->
-            <h:column>
-                <f:facet name="header">Acción</f:facet>
-                <h:commandButton value="Seleccionar"
-                                 actionListener="#{frmSala.btnSeleccionarRegistroHandler(r.idSala)}">
-                    <f:ajax render="pnlDetalle" execute="@form"/>
-                </h:commandButton>
-            </h:column>
-        </h:dataTable>
-
-        <!-- Botón: Nuevo -->
-        <h:commandButton value="Nuevo"
-                         actionListener="#{frmSala.btnNuevoHandler}"/>
+        <!-- Botones principales -->
+        <h:panelGrid columns="2" style="margin-top: 20px;">
+            <p:commandButton value="Nueva Sala" action="#{frmSala.btnNuevoHandler}" update=":pnlDetalle"/>
+            <p:commandButton value="Cancelar" rendered="#{not empty frmSala.registro}"
+                             action="#{frmSala.btnCancelarHandler}" update=":frmPrincipal :pnlDetalle"/>
+        </h:panelGrid>
     </h:form>
 
-    <!-- Formulario para editar/crear -->
-    <h:panelGroup id="pnlDetalle">
-        <h:form id="frmDetalle" rendered="#{not empty frmSala.registro}">
-            <h:panelGrid columns="2" cellpadding="5" border="1">
-                <h:outputLabel value="ID" for="txtId"/>
-                <h:inputText id="txtId" value="#{frmSala.registro.idSala}" readonly="true" disabled="true"/>
+    <!-- Detalle de Sala Seleccionada -->
+    <h:panelGroup id="pnlDetalle" rendered="#{not empty frmSala.registro}">
+        <h3>Detalle de la Sala</h3>
+        <p:tabView id="tabDetalle" cache="false">
+            <!-- Pestaña Generalidades -->
+            <p:tab title="Generalidades">
+                <h:form id="frmDetalle">
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <p:outputLabel value="ID" for="txtId"/>
+                        <p:inputText id="txtId" value="#{frmSala.registro.idSala}" readonly="true"/>
 
-                <h:outputLabel value="Nombre" for="txtNombre"  />
-                <h:inputText id="txtNombre" value="#{frmSala.registro.nombre}" size="50" required="true"/>
+                        <p:outputLabel value="Nombre" for="txtNombre"/>
+                        <p:inputText id="txtNombre" value="#{frmSala.registro.nombre}"/>
 
-                <h:outputLabel value="Sucursal" for="lstSucursal"/>
-                <h:selectOneMenu id="lstSucursal" value="#{frmSala.idSucursalSeleccionado}">
-                    <f:selectItem itemValue="" itemLabel="Seleccione una sucursal" noSelectionOption="true"/>
-                    <f:selectItems value="#{frmSala.listaSucursales}" var="s"
-                                   itemLabel="#{s.nombre}" itemValue="#{s.idSucursal}"/>
-                </h:selectOneMenu>
+                        <p:outputLabel value="Activo" for="chkActivo"/>
+                        <p:selectBooleanCheckbox id="chkActivo" value="#{frmSala.registro.activo}"/>
 
-                <h:outputLabel value="Estado" for="chkActivo"/>
-                <h:selectBooleanCheckbox id="chkActivo" value="#{frmSala.registro.activo}"/>
+                        <p:outputLabel value="Observaciones" for="txtObservaciones"/>
+                        <p:inputTextarea id="txtObservaciones" value="#{frmSala.registro.observaciones}" rows="3"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:tab>
 
-                <h:outputLabel value="Observaciones" for="txtObservaciones"/>
-                <h:inputTextarea id="txtObservaciones" value="#{frmSala.registro.observaciones}" cols="50" rows="3"/>
-            </h:panelGrid>
+            <!-- Pestaña Sucursal -->
+            <p:tab title="Sucursal">
+                <h:form id="frmSucursalDetalle">
+                    <h:panelGrid columns="2">
+                        <p:outputLabel value="Sucursal" for="ddlSucursal"/>
+                        <p:selectOneMenu id="ddlSucursal" value="#{frmSala.registro.idSucursal.idSucursal}">
+                            <f:selectItem itemValue="0" itemLabel="Seleccione una Sucursal"/>
+                            <f:selectItems value="#{frmSala.sucursales}" var="sucursal"
+                                           itemLabel="#{sucursal.nombre}" itemValue="#{sucursal.idSucursal}"/>
+                        </p:selectOneMenu>
+                    </h:panelGrid>
+                </h:form>
+            </p:tab>
 
-            <h:messages showSummary="true" showDetail="true"/>
-
-            <h:panelGrid columns="4" cellpadding="5">
-                <h:commandButton value="Guardar"
-                                 actionListener="#{frmSala.btnGuardarHandler}"
-                                 rendered="#{frmSala.estado == 'CREAR'}">
-                    <f:ajax render="frmTabla pnlDetalle" execute="@form"/>
-                </h:commandButton>
-
-                <h:commandButton value="Modificar"
-                                 actionListener="#{frmSala.btnGuardarHandler}"
-                                 rendered="#{frmSala.estado == 'MODIFICAR'}">
-                    <f:ajax render="frmTabla pnlDetalle" execute="@form"/>
-                </h:commandButton>
-
-                <h:commandButton value="Eliminar"
-                                 actionListener="#{frmSala.btnEliminarHandler}"
-                                 rendered="#{frmSala.estado == 'MODIFICAR'}">
-                    <f:ajax render="frmTabla pnlDetalle" execute="@form"/>
-                </h:commandButton>
-
-                <h:commandButton value="Cancelar"
-                                 actionListener="#{frmSala.btnCancelarHandler}">
-                    <f:ajax render="frmTabla pnlDetalle" execute="@form"/>
-                </h:commandButton>
-            </h:panelGrid>
-        </h:form>
+            <!-- Pestaña Programaciones -->
+            <p:tab title="Programaciones">
+                <p:dataTable id="tablaProgramaciones" value="#{frmSala.registro.programacionList}" var="programacion">
+                    <p:column headerText="Película">
+                        <h:outputText value="#{programacion.idPelicula.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Desde">
+                        <h:outputText value="#{programacion.desde}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Hasta">
+                        <h:outputText value="#{programacion.hasta}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                    </p:column>
+                </p:dataTable>
+            </p:tab>
+        </p:tabView>
     </h:panelGroup>
 </h:body>
 </html>

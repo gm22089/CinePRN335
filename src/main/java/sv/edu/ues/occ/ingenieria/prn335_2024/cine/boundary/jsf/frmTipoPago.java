@@ -1,133 +1,82 @@
 package sv.edu.ues.occ.ingenieria.prn335_2024.cine.boundary.jsf;
 
-import javax.sql.DataSource;
-
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.primefaces.event.SelectEvent;
+import sv.edu.ues.occ.ingenieria.prn335_2024.cine.control.AbstractDataPersist;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.control.TipoPagoBean;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.TipoPago;
-import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.TipoSala;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
-@Named("frmTipoPago")
+@Named
 @ViewScoped
-public class frmTipoPago implements Serializable {
-
-    @Resource(name = "jdbc/pgdb")
-    private DataSource dataSource;
+public class frmTipoPago extends AbstractFrm<TipoPago> implements Serializable {
+    @Override
+    public String paginaNombre() {
+        return "Tipo Pago";
+    }
 
     @Inject
-    private TipoPagoBean tpBean;
-
-
+    TipoPagoBean tpBean;
     @Inject
-    private FacesContext facesContext;
+    FacesContext fc;
 
-    private ESTADO_CRUD estado;
-    private List<TipoPago> registros;
-    private TipoPago registro;
-
-    public List<TipoPago> getRegistros() {
-        return registros;
-    }
-
-    public void setRegistro(TipoPago registro) {
-        this.registro = registro;
-    }
-
-    @PostConstruct
-    public void init() {
-        estado = ESTADO_CRUD.NINGUNO;
-        try {
-            registros = tpBean.findRange(0, 1000000);
-        } catch (Exception e) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Error al cargar los registros", "No se pudieron cargar los registros de TipoPago"));
-            e.printStackTrace();
-        }
-    }
-
-    public void btnSeleccionarRegistroHandler(final Integer idTipoPago) {
-        this.estado = ESTADO_CRUD.MODIFICAR;
-        if (idTipoPago != null) {
-            this.registro = this.registros.stream()
-                    .filter(r -> idTipoPago.equals(r.getIdTipoPago()))
-                    .findFirst().orElse(null);
-            if (this.registro == null) {
-                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Registro no encontrado", "El registro seleccionado no existe"));
-            }
-        }
-    }
-
-    public void btnCancelarHandler(ActionEvent actionEvent) {
-        this.registro = null;
-        this.estado = ESTADO_CRUD.NINGUNO;
-    }
-
-    public void btnNuevoHandler(ActionEvent actionEvent) {
+    @Override
+    public void instanciarRegistro() {
         this.registro = new TipoPago();
-        this.registro.setActivo(true);
-        this.estado = ESTADO_CRUD.CREAR;
+        registro.setActivo(true);
     }
 
-    public void btnGuardarHandler(ActionEvent actionEvent) {
-        FacesMessage mensaje;
-        try {
-            if (estado == ESTADO_CRUD.CREAR) {
-                tpBean.create(registro); // Deja que la base de datos maneje el ID
-                mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO,
-                        "Registro guardado con éxito", "El tipo de pago se ha creado correctamente");
-            } else if (estado == ESTADO_CRUD.MODIFICAR) {
-                tpBean.update(registro); // Actualizar el registro
-                mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO,
-                        "Registro modificado con éxito", "El tipo de pago se ha modificado correctamente");
-            } else {
-                return;
-            }
-            facesContext.addMessage(null, mensaje);
-            this.registro = null;
-            this.registros = tpBean.findRange(0, 1000000); // Recargar los registros
-            this.estado = ESTADO_CRUD.NINGUNO;
-        } catch (Exception e) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Error al guardar el registro", "No se pudo guardar el registro"));
-            e.printStackTrace();
+    String Titulo = "TipoPago";
+
+    @Override
+    public FacesContext getFC() {
+        return fc;
+    }
+
+    @Override
+    public AbstractDataPersist<TipoPago> getAbstractDataPersist() {
+        return tpBean;
+    }
+
+
+    @Override
+    public String getIdByObject(TipoPago object) {
+        if (object.getIdTipoPago() != null) {
+            return object.getIdTipoPago().toString();
         }
+        return null;
     }
 
-    public void btnEliminarHandler(ActionEvent actionEvent) {
-        FacesMessage mensaje;
-        try {
-            tpBean.delete(registro); // Eliminar el registro
-            mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO,
-                    "Registro eliminado con éxito", "El tipo de pago ha sido eliminado correctamente");
-            facesContext.addMessage(null, mensaje);
-            this.registro = null;
-            this.estado = ESTADO_CRUD.NINGUNO;
-            this.registros = tpBean.findRange(0, 1000000); // Recargar los registros
-        } catch (Exception e) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Error al eliminar", "Ocurrió un error al eliminar el registro"));
-            e.printStackTrace();
+    @Override
+    public TipoPago getObjectById(String id) {
+        if (id != null & modelo != null & modelo.getWrappedData() != null) {
+            return modelo.getWrappedData().stream().
+                    filter(r -> id.equals(r.getIdTipoPago().toString())).findFirst().
+                    orElseGet(() -> {
+                        Logger.getLogger("no se ha encontrado el objeto");
+                        return null;
+                    });
         }
+        return null;
     }
 
-    public ESTADO_CRUD getEstado() {
-        return estado;
+    @Override
+    public void selecionarFila(SelectEvent<TipoPago> event) {
+        TipoPago filaSelelcted = event.getObject();
+        FacesMessage mensaje = new FacesMessage("Tipo de pago selecionado co exito");
+        fc.addMessage(null, mensaje);
+        this.registro = filaSelelcted;
+        this.estado = ESTADO_CRUD.MODIFICAR;
+
     }
 
-    public TipoPago getRegistro() {
-        return registro;
+    public String getTitulo() {
+        return Titulo;
     }
-
 }

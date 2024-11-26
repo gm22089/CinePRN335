@@ -1,93 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core">
-<h:head>
-    <h:outputStylesheet name="estilos/styles.css" />
-    <title>Lista de Sucursales</title>
-</h:head>
 
-<h:body>
-    <h1>Lista de Sucursales</h1>
+<f:composition xmlns="http://www.w3.org/1999/xhtml"
+               xmlns:h="jakarta.faces.html"
+               xmlns:f="jakarta.faces.facelets"
+               xmlns:p="http://primefaces.org/ui"
+               xmlns:crud="jakarta.faces.composite/crud"
+               template="WEB-INF/templates/principal.xhtml">
 
-    <!-- Formulario de visualización de las Sucursales -->
-    <h:form id="frmTabla">
-        <h:dataTable value="#{frmSucursal.registros}" var="r">
-            <!-- Columna para el ID -->
-            <h:column>
-                <f:facet name="header">ID</f:facet>
-                <h:outputText value="#{r.idSucursal}" />
-            </h:column>
+    <f:define name="titulo">
+        #{frmSucursal.paginaNombre()}
+    </f:define>
 
-            <!-- Columna para el Nombre -->
-            <h:column>
-                <f:facet name="header">Nombre</f:facet>
-                <h:outputText value="#{r.nombre}" />
-            </h:column>
+    <f:define name="cuerpo">
+        <h:panelGrid>
+            <h:panelGroup id="pnlTabla">
+                <h:form id="frmTabla">
+                    <p:dataTable value="#{frmSucursal.modelo}" var="r"
+                                 lazy="true"
+                                 paginator="true"
+                                 rows="10"
+                                 first="0"
+                                 selectionMode="single"
+                                 selection="#{frmSucursal.registro}"
+                                 rendered="#{empty frmSucursal.registro}">
+                        <p:ajax process="@this" update=":pnlDetalle @form" event="rowSelect" listener="#{frmSucursal.selecionarFila}"/>
+                        <p:column headerText="ID"><h:outputText value="#{r.idSucursal}"/></p:column>
+                        <p:column headerText="NOMBRE"><h:outputText value="#{r.nombre}"/></p:column>
+                        <p:column headerText="COORDENADAS"><h:outputText value="#{r.longitud}, #{r.latitud}"/></p:column>
+                        <p:column headerText="ACTIVO"><h:outputText value="#{r.activo ? 'ACTIVO' : 'INACTIVO'}"/></p:column>
+                        <p:column headerText="COMENTARIOS"><h:outputText value="#{r.comentarios}"/></p:column>
+                    </p:dataTable>
+                    <crud:botonesTop frm="#{frmSucursal}"/>
+                    <p:growl id="growl" showDetail="true" sticky="false" life="1500"/>
+                </h:form>
+            </h:panelGroup>
+        </h:panelGrid>
 
-            <!-- Columna para las Coordenadas (Longitud y Latitud) -->
-            <h:column>
-                <f:facet name="header">Coordenadas</f:facet>
-                <h:outputText value="#{r.latitud}, #{r.longitud}" />
-            </h:column>
+        <h:panelGroup id="pnlDetalle">
+            <h:form rendered="#{not empty frmSucursal.registro}" id="frmDetalle">
+                <h:panelGrid columns="2">
+                    <h:outputLabel value="ID" for="txtID"/>
+                    <h:inputText id="txtID" value="#{frmSucursal.registro.idSucursal}" readonly="true" disabled="true"/>
 
-            <!-- Columna para el Estado (Activo/No Activo) -->
-            <h:column>
-                <f:facet name="header">Estado</f:facet>
-                <h:outputText value="#{r.activo ? 'Activo' : 'Inactivo'}" />
-            </h:column>
+                    <h:outputLabel value="Nombre" for="txtNombre"/>
+                    <h:inputText id="txtNombre" value="#{frmSucursal.registro.nombre}" size="70"/>
 
-            <!-- Columna para los Comentarios -->
-            <h:column>
-                <f:facet name="header">Comentarios</f:facet>
-                <h:outputText value="#{r.comentarios}" />
-            </h:column>
+                    <h:outputLabel value="Longitud" for="txtLongitud"/>
+                    <h:inputText id="txtLongitud" value="#{frmSucursal.registro.longitud}"/>
 
-            <!-- Botón para seleccionar el registro y editar -->
-            <h:column>
-                <h:commandButton value="Seleccionar" actionListener="#{frmSucursal.btnSeleccionarRegistroHandler(r.idSucursal)}">
-                    <f:ajax render="pnlDetalle" execute="@form"/>
-                </h:commandButton>
-            </h:column>
-        </h:dataTable>
+                    <h:outputLabel value="Latitud" for="txtLatitud"/>
+                    <h:inputText id="txtLatitud" value="#{frmSucursal.registro.latitud}"/>
 
-        <!-- Botones para nuevas acciones -->
-        <h:panelGroup>
+                    <h:outputLabel value="Activo" for="chkEstado"/>
+                    <h:selectBooleanCheckbox id="chkEstado" value="#{frmSucursal.registro.activo}"/>
 
-            <h:commandButton value="Nuevo" actionListener="#{frmSucursal.btnNuevoHandler}" />
+                    <h:outputLabel value="Comentarios" for="txtComentarios"/>
+                    <h:inputTextarea id="txtComentarios" value="#{frmSucursal.registro.comentarios}" cols="70" rows="3"/>
+                </h:panelGrid>
+                <h:panelGrid columns="#{frmSucursal.estado=='CREAR'?'1':'2'}">
+                    <h:panelGrid>
+                        <crud:botonesBottom frm="#{frmSucursal}"/>
+                    </h:panelGrid>
+                </h:panelGrid>
+            </h:form>
         </h:panelGroup>
-    </h:form>
+    </f:define>
 
-    <!-- Detalles del formulario para crear/editar una sucursal -->
-    <h:panelGroup id="pnlDetalle">
-        <h:form id="frmDetalle" rendered="#{not empty frmSucursal.registro}">
-            <h:panelGrid columns="2">
-                <h:outputLabel value="ID" for="txtId" />
-                <h:inputText id="txtId" value="#{frmSucursal.registro.idSucursal}" readonly="true" disabled="true"/>
+    <f:define name="extras">
+    </f:define>
+</f:composition>
 
-                <h:outputLabel value="Nombre" for="txtNombre" />
-                <h:inputText id="txtNombre" value="#{frmSucursal.registro.nombre}" size="70"/>
-
-                <h:outputLabel value="Estado" for="chkActivo" />
-                <h:selectBooleanCheckbox id="chkActivo" value="#{frmSucursal.registro.activo}" />
-
-                <h:outputLabel value="Coordenadas" for="txtCoordenadas" />
-                <h:outputText id="txtCoordenadas" value="#{frmSucursal.registro.latitud}, #{frmSucursal.registro.longitud}" />
-
-                <h:outputLabel value="Comentarios" for="txtComentarios" />
-                <h:inputTextarea id="txtComentarios" value="#{frmSucursal.registro.comentarios}" cols="70" rows="3"/>
-            </h:panelGrid>
-
-            <!-- Mensajes de error o éxito -->
-            <h:messages showSummary="true" showDetail="true"/>
-
-            <!-- Botones para guardar, modificar o eliminar -->
-            <h:panelGrid>
-                <h:commandButton value="Cancelar" actionListener="#{frmSucursal.btnCancelarHandler}" />
-                <h:commandButton value="Guardar" actionListener="#{frmSucursal.btnGuardarHandler}" rendered="#{frmSucursal.estado == 'CREAR'}"/>
-                <h:commandButton value="Modificar" actionListener="#{frmSucursal.btnGuardarHandler}" rendered="#{frmSucursal.estado == 'MODIFICAR'}"/>
-                <h:commandButton value="Eliminar" actionListener="#{frmSucursal.btnEliminarHandler}" rendered="#{frmSucursal.estado == 'MODIFICAR'}"/>
-
-            </h:panelGrid>
-        </h:form>
-    </h:panelGroup>
-</h:body>
-</html>

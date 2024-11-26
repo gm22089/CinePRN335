@@ -11,9 +11,7 @@ import org.primefaces.model.SortMeta;
 import org.primefaces.model.SortOrder;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.boundary.jsf.orden.LazySorted;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.control.AbstractDataPersist;
-import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.Pelicula;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.TipoProducto;
-import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.TipoSala;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -25,18 +23,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public abstract class AbstractFrm<T> implements Serializable {
-    public abstract AbstractDataPersist<TipoSala> getDataAccess();
-
-    public abstract FacesContext getFacesContext();
-
-    public abstract String Rowkey(TipoSala object);
-
-    public abstract TipoSala RowData(String rowKey);
-
-    public abstract String getIdPorObjeto(TipoSala object);
-
-    public abstract TipoProducto getObjetoPorId(String id);
-
     //metodos abstractos
     public abstract void instanciarRegistro();
     public abstract FacesContext getFC();
@@ -44,9 +30,6 @@ public abstract class AbstractFrm<T> implements Serializable {
     //   public abstract void btnSelecionarRegistroHandler(final Object id);
     public abstract String getIdByObject(T object);
     public abstract T getObjectById(String id);
-
-    public abstract Pelicula findByIdPelicula(String id);
-
     public abstract void selecionarFila(SelectEvent<T> event);
     public abstract String paginaNombre();
 
@@ -73,6 +56,8 @@ public abstract class AbstractFrm<T> implements Serializable {
         inicioRegistros();
     }
     public void  inicioRegistros(){
+
+        System.out.println("hola 2");
         this.modelo=new LazyDataModel<T>() {
 
             //se indica cuantas filas tiene el entity atravas del metod count
@@ -87,27 +72,7 @@ public abstract class AbstractFrm<T> implements Serializable {
 
                 return result;
             }
-            //se cargarn elelmetos de acuerdo al findrabge
-//         public List<T> load(int init, int max, Map<String, SortMeta> map, Map<String, FilterMeta> map1) {
-//
-//           if (init >= 0 && max > 0){
-//
-//              try {
-//                 AbstractDataPersist<T> clBean=getAbstractDataPersist();
-//
-////                 implementacion para ordenar
-//                 if (!map.isEmpty()){
-//                    String CampoOrden=map.values().stream().findFirst().get().getField();
-//                    String direcion=map.values().stream().findFirst().get().getOrder().toString();
-//                    return clBean.findRange(init,max,CampoOrden,direcion);
-//                 }
-//                 return clBean.findRange(init,max);
-//              }catch (Exception e) {
-//                 Logger.getLogger(AbstractFrm.class.getName()).log(Level.SEVERE, null, e);
-//              }
-//           }
-//            return List.of();
-//         }
+
             @Override
             public List<T> load(int init, int max, Map<String, SortMeta> map, Map<String, FilterMeta> map1) {
 

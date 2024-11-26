@@ -22,11 +22,10 @@
       />
       <cc:implementation>
          <h:panelGrid columns="#{cc.attrs.frm.estado=='CREAR'?'1':'2'}">
-            <p:commandButton value="GUARDAR" rendered="#{cc.attrs.frm.estado=='CREAR'}" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btnGuardarHandler}"/>
-            <p:commandButton value="MODIFICAR" rendered="#{cc.attrs.frm.estado=='MODIFICAR'}" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btnModificarHandler}"/>
-            <p:commandButton value="ELIMINAR" rendered="#{cc.attrs.frm.estado=='MODIFICAR'}" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btneEliminarHandler}"/>
+            <p:commandButton value="#{abstrasctpffrm['abstrasctpffrm.create']} #{cc.attrs.frm.paginaNombre()}" rendered="#{cc.attrs.frm.estado=='CREAR'}" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btnGuardarHandler}"/>
+            <p:commandButton value="#{abstrasctpffrm['abstrasctpffrm.update']} #{cc.attrs.frm.paginaNombre()}" rendered="#{cc.attrs.frm.estado=='MODIFICAR'}" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btnModificarHandler}"/>
+            <p:commandButton value="#{abstrasctpffrm['abstrasctpffrm.delete']} #{cc.attrs.frm.paginaNombre()}" rendered="#{cc.attrs.frm.estado=='MODIFICAR'}" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btneEliminarHandler}"/>
          </h:panelGrid>
-
       </cc:implementation>
    </cc:interface>
 

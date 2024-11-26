@@ -12,76 +12,83 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class AbstractDataPersist<T> {
+public abstract  class AbstractDataPersist<T> {
     final Class tipoDeDato;
+    private String Orden;
 
     public AbstractDataPersist(Class t) {
-        this.tipoDeDato = t;
+        this.tipoDeDato=t;
     }
-
     public abstract EntityManager getEntityManager();
 
-    public T findById(Object id) throws IllegalArgumentException, IllegalStateException {
+    public T findById(Object id) throws IllegalArgumentException ,IllegalStateException {
         EntityManager em = null;
-        if (id == null) {
+        if (id==null){
             throw new IllegalStateException("parametro no valido");
         }
         try {
-            em = getEntityManager();
-            if (em == null) {
+            em=getEntityManager();
+            if (em==null){
                 throw new IllegalStateException("error al aceder al repositorio");
             }
-        } catch (IllegalStateException e) {
-            throw new IllegalStateException("error al aceder al repositorio", e);
+        }catch (IllegalStateException e){
+            throw new IllegalStateException("error al aceder al repositorio",e);
 
         }
-        return (T) em.find(this.tipoDeDato, id);
+        return (T) em.find(this.tipoDeDato,id);
     }
-
     public List<T> findAll() throws IllegalStateException {
         EntityManager em = null;
-        List<T> resultados = null;
+        List<T> resultados=null;
         try {
-            em = getEntityManager();
-            if (em == null) {
+            em=getEntityManager();
+            if (em==null){
                 throw new IllegalStateException("error al aceder al repositorio");
             }
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaQuery cq = cb.createQuery(tipoDeDato);
-            Root<T> r = cq.from(tipoDeDato);
-            CriteriaQuery<T> cq2 = cq.select(r);
-            TypedQuery<T> q = em.createQuery(cq2);
-            resultados = q.getResultList();
+            CriteriaBuilder cb=em.getCriteriaBuilder();
+            CriteriaQuery cq=cb.createQuery(tipoDeDato);
+            Root<T> r=cq.from(tipoDeDato);
+            CriteriaQuery<T> cq2=cq.select(r);
+            TypedQuery<T> q=em.createQuery(cq2);
+            resultados=q.getResultList();
             return resultados;
-        } catch (java.lang.IllegalStateException e) {
+        }catch (java.lang.IllegalStateException e){
             //error de entity manager
-            throw new IllegalStateException("error al aceder al repositorio", e);
+            throw new IllegalStateException("error al aceder al repositorio",e);
         }
     }
 
     public List<T> findRange(int first, int max) throws IllegalStateException, IllegalArgumentException {
+        return findRange(first, max, "",""); // Llama al método con orden como cadena vacía
+    }
+    public List<T> findRange(int first, int max,String orden,String direccion) throws IllegalStateException,IllegalArgumentException {
         EntityManager em = null;
 
         if (first >= 0 && max > 0) {
             try {
                 em = getEntityManager();
                 if (em != null) {
-
-                    //construir consultas de criterios (criteria queries). Este es un componente clave de JPA para construir consultas dinámicas.
+                    // Construir consultas de criterios
                     CriteriaBuilder cb = em.getCriteriaBuilder();
-                    // estructura de la consulta con criterios que se va a construir. A partir de este punto,
-                    CriteriaQuery q = cb.createQuery(this.tipoDeDato);
-//              Root representa la entidad raíz de la consulta, que es tipoDatos. Esto se utiliza para definir desde qué entidad se realizará la consulta.
+                    CriteriaQuery<T> cq = cb.createQuery(this.tipoDeDato);
+                    Root<T> raiz = cq.from(this.tipoDeDato);
+                    cq.select(raiz);
 
-                    //indicamo de donde selecionamos
-                    Root<T> raiz = q.from(this.tipoDeDato);
-                    CriteriaQuery cq = q.select(raiz);
+                    // Agregar ordenamiento si se proporciona
+                    if (!orden.isEmpty()) {
+                        if (!direccion.equals("ASCENDING")) {
 
-                    TypedQuery query = em.createQuery(cq);
+                            cq.orderBy(cb.desc(raiz.get(orden))); // Orden ascendente
+                        }else{
+
+                            cq.orderBy(cb.asc(raiz.get(orden))); // Orden ascendente
+                        }
+                    }
+
+                    TypedQuery<T> query = em.createQuery(cq);
                     query.setFirstResult(first);
                     query.setMaxResults(max);
-                    return (query.getResultList());
-
+                    return query.getResultList();
                 }
             } catch (Exception e) {
                 System.out.println("error: " + e.getMessage());
@@ -94,44 +101,44 @@ public abstract class AbstractDataPersist<T> {
     }
 
     /**
-     * almacena un registro en le repositorio
-     *
+     *almacena un registro en le repositorio
      * @param registro registroa guardar
-     * @throws IllegalStateException    lanza error si no puede acceder al repositorio
+     * @throws IllegalStateException lanza error si no puede acceder al repositorio
      * @throws IllegalArgumentException lanza error si el registr es nulo
      * @throws
      */
-    public void create(T registro) throws IllegalStateException, IllegalArgumentException {
-        EntityManager em = null;
+    public void create(T registro) throws IllegalStateException,IllegalArgumentException {
         if (registro == null) {
             throw new IllegalArgumentException("El registro no puede ser nulo");
         }
+        EntityManager em = null;
         try {
             em = getEntityManager();
             if (em == null) {
                 throw new IllegalStateException("Error al acceder al repositorio");
             }
+
             em.persist(registro);
         } catch (Exception e) {
             throw new IllegalStateException("Error al acceder al repositorio jj", e);
         }
     }
-
-    public void modify(T registro) {
+    public T update(T registro) {
         if (registro == null) {
             throw new IllegalArgumentException("El registro no puede ser nulo");
         }
+        T modificado=null;
         EntityManager em = null;
         try {
             em = getEntityManager();
             if (em != null) {
-                em.merge(registro);
+                modificado= em.merge(registro);
             }
         } catch (IllegalStateException e) {
             throw new IllegalStateException("Error al acceder al repositorio", e);
         }
+        return modificado;
     }
-
     public int count() {
         EntityManager em = null;
         try {
@@ -144,7 +151,7 @@ public abstract class AbstractDataPersist<T> {
             CriteriaQuery cq = cb.createQuery(this.tipoDeDato);
             Root<T> raiz = cq.from(this.tipoDeDato);
 
-            CriteriaQuery crq = cq.select(cb.count(raiz));
+            CriteriaQuery crq=cq.select(cb.count(raiz));
 
             TypedQuery q = em.createQuery(crq);
 
@@ -173,18 +180,5 @@ public abstract class AbstractDataPersist<T> {
         }
         throw new IllegalArgumentException();
     }
-
-    public T update(T rDeleted) throws IllegalStateException {
-        EntityManager em = null;
-        if (rDeleted == null) {
-            throw new IllegalArgumentException();
-        }
-        em = getEntityManager();
-        if (em != null) {
-            return em.merge(rDeleted);
-        }
-        throw new IllegalStateException();
-    }
-
 
 }

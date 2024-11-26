@@ -1,55 +1,72 @@
-package sv.edu.ues.occ.ingenieria.prn335_2024.cine.boundary.control;
+package sv.edu.ues.occ.ingenieria.prn335_2024.cine.control;
 
 import jakarta.ejb.Stateless;
+import jakarta.inject.Named;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.Sala;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.SalaCaracteristica;
+import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.TipoSala;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+@Named
 @Stateless
-public class SalaCaracteristicaBean {
-
+public class SalaCaracteristicaBean extends AbstractDataPersist<SalaCaracteristica> implements Serializable {
     @PersistenceContext(unitName = "cinePU")
-    private EntityManager em;
+    EntityManager em;
 
-    // Crear un nuevo registro
-    public void create(SalaCaracteristica salaCaracteristica) {
-        em.persist(salaCaracteristica);
+    public SalaCaracteristicaBean() {
+        super(SalaCaracteristica.class);
     }
 
-    // Modificar un registro existente
-    public SalaCaracteristica update(SalaCaracteristica salaCaracteristica) {
-        return em.merge(salaCaracteristica);
+    @Override
+    public EntityManager getEntityManager() {
+        return em;
     }
 
-    // Eliminar un registro
-    public void delete(SalaCaracteristica salaCaracteristica) {
-        salaCaracteristica = em.merge(salaCaracteristica);
-        em.remove(salaCaracteristica);
+    public List<TipoSala> findAllTiposSala() {
+        try {
+            TypedQuery<TipoSala> q = em.createNamedQuery("SalaCaracteristica.findAllTipoSala", TipoSala.class);
+            q.setFirstResult(0);
+            q.setMaxResults(Integer.MAX_VALUE);
+            return q.getResultList();
+        }catch (Exception e){
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE,e.getMessage(),e);
+        }
+        return List.of();
     }
 
-    // Buscar un registro por su ID
-    public SalaCaracteristica find(Integer idSalaCaracteristica) {
-        return em.find(SalaCaracteristica.class, idSalaCaracteristica);
+
+    public int countPeliculaCarracteristica(final Sala idSala) {
+        try {
+            TypedQuery<Long> q = em.createNamedQuery("SalaCaracteristica.countByIdSalaCaracteristica", Long.class);
+            q.setParameter("idSala", idSala.getIdSala());
+            return q.getSingleResult().intValue();
+        } catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+        }
+        return 0;
+    }
+    public List<SalaCaracteristica> findByIdSala(final Sala idTipoSala, int first, int last) {
+        try {
+
+            System.out.println();
+            TypedQuery<SalaCaracteristica> q = em.createNamedQuery("SalaCaracteristica.findByIdCaracteristicasBySala", SalaCaracteristica.class);
+            q.setParameter("idSala", idTipoSala.getIdSala());
+            q.setFirstResult(first);
+            q.setMaxResults(last);
+            return q.getResultList();
+        }catch (Exception e){
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE,e.getMessage(),e);
+        }
+        return List.of();
     }
 
-    // Obtener todos los registros
-    public List<SalaCaracteristica> findAll() {
-        return em.createQuery("SELECT s FROM SalaCaracteristica s", SalaCaracteristica.class).getResultList();
-    }
 
-    // Obtener un rango de registros (para paginación)
-    public List<SalaCaracteristica> findRange(int first, int max) {
-        return em.createQuery("SELECT s FROM SalaCaracteristica s", SalaCaracteristica.class)
-                .setFirstResult(first)
-                .setMaxResults(max)
-                .getResultList();
-    }
 
-    // Contar el total de registros
-    public long count() {
-        return em.createQuery("SELECT COUNT(s) FROM SalaCaracteristica s", Long.class)
-                .getSingleResult();
-    }
 }

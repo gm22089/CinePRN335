@@ -2,16 +2,15 @@
 <faces-config version="4.0" xmlns="https://jakarta.ee/xml/ns/jakartaee"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
-                                  https://jakarta.ee/xml/ns/jakartaee/web-facesconfig_4_0.xsd" >
+                                  https://jakarta.ee/xml/ns/jakartaee/web-facesconfig_4_0.xsd">
     <application>
         <locale-config>
             <default-locale>en</default-locale>
             <supported-locale>es</supported-locale>
             <supported-locale>en</supported-locale>
-
         </locale-config>
         <resource-bundle>
-            <base-name>Traduciones</base-name>
+            <base-name>Traducciones</base-name>
             <var>abstrasctpffrm</var>
         </resource-bundle>
     </application>

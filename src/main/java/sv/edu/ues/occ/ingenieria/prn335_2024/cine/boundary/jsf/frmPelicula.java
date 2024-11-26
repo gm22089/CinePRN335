@@ -1,192 +1,110 @@
 package sv.edu.ues.occ.ingenieria.prn335_2024.cine.boundary.jsf;
 
-import jakarta.annotation.PostConstruct;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
+import org.primefaces.event.SelectEvent;
+import org.primefaces.event.TabChangeEvent;
+import sv.edu.ues.occ.ingenieria.prn335_2024.cine.control.AbstractDataPersist;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.control.PeliculaBean;
 import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.Pelicula;
 
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIInput;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
-@Named("frmPelicula")
 @ViewScoped
-public class frmPelicula implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-    private static final Logger logger = Logger.getLogger(frmPelicula.class.getName());
+@Named
+public class frmPelicula extends AbstractFrm<Pelicula> implements Serializable {
+    @Inject
+    PeliculaBean pBean;
+    @Inject
+    FacesContext fc;
 
     @Inject
-    private PeliculaBean peliculaBean;
+    frmPeliculaCaracteristica frmPeliculaCarractreistica;
 
-    private List<Pelicula> registros;
-    private Pelicula registro;
-    private EstadoCrud estado;
 
-    private String busquedaNombre;
-    private String busquedaSinopsis;
-
-    public enum EstadoCrud {
-        CREAR, MODIFICAR, NINGUNO;
+    @Override
+    public void instanciarRegistro() {
+        this.registro=new Pelicula();
     }
 
-    @PostConstruct
-    public void init() {
-        estado = EstadoCrud.NINGUNO;
-        cargarRegistros();
+    @Override
+    public FacesContext getFC() {
+        return fc;
     }
 
-    private void cargarRegistros() {
-        try {
-            registros = peliculaBean.findAll();
-            if (registros == null || registros.isEmpty()) {
-                registros = Collections.emptyList();
-                mostrarMensaje("No se encontraron registros de películas.");
-            }
-        } catch (Exception e) {
-            mostrarMensajeError("Error al cargar registros", "No se pudo cargar la lista de películas.");
-            logger.log(Level.SEVERE, "Error al cargar registros", e);
+    @Override
+    public AbstractDataPersist<Pelicula> getAbstractDataPersist() {
+        return pBean;
+    }
+
+
+    @Override
+    public String getIdByObject(Pelicula object) {
+        if (object!=null){
+            return object.getIdPelicula().toString();
+        }
+        return null;
+    }
+
+    @Override
+    public Pelicula getObjectById(String id) {
+        if (id!=null && modelo!=null & modelo.getWrappedData()!=null){
+            return modelo.getWrappedData().stream().
+                    filter(r->id.equals(r.getIdPelicula().toString())).findFirst().
+                    orElseGet(()->{
+                        Logger.getLogger(getClass().getName()).log(Level.INFO,"Objeto no encontradoo");
+                        return null;
+                    });
+        }
+        return null;
+    }
+
+    @Override
+    public void selecionarFila(SelectEvent<Pelicula> event) {
+        frmPeliculaCarractreistica.estado=ESTADO_CRUD.NINGUNO;
+        FacesMessage mensaje=new FacesMessage("pelicula selecionada ", registro.getNombre());
+        fc.addMessage(null,mensaje);
+        this.estado=ESTADO_CRUD.MODIFICAR;
+        this.frmPeliculaCarractreistica.idPelicula=registro.getIdPelicula();
+    }
+
+    @Override
+    public String paginaNombre() {
+        return "Pelicula";
+    }
+    public void cambiarTab(TabChangeEvent event){
+
+        if(event.getTab().getTitle().equals("Caracteristicas")){
+            System.out.println("enviando");
+            frmPeliculaCarractreistica.setIdPelicula(registro.getIdPelicula());
+            frmPeliculaCarractreistica.inicioRegistros();
+            frmPeliculaCarractreistica.setPeliculaSelecionada(registro);
         }
     }
 
-    public void seleccionarRegistro(Integer idPelicula) {
-        if (idPelicula == null || idPelicula <= 0) {
-            mostrarMensajeError("Selección inválida", "El ID de la película es inválido.");
-            return;
-        }
-        registro = peliculaBean.findById(idPelicula);
-        if (registro != null) {
-            estado = EstadoCrud.MODIFICAR;
-        } else {
-            mostrarMensajeError("Error", "No se encontró la película seleccionada.");
-            estado = EstadoCrud.NINGUNO;
-        }
+
+    public frmPeliculaCaracteristica getFrmPeliculaCarractreistica() {
+        return frmPeliculaCarractreistica;
     }
 
-    public void prepararNuevoRegistro() {
-        registro = new Pelicula();
-        estado = EstadoCrud.CREAR;
+    public void setFrmPeliculaCarractreistica(frmPeliculaCaracteristica frmPeliculaCarractreistica) {
+        this.frmPeliculaCarractreistica = frmPeliculaCarractreistica;
     }
 
-    public void guardar() {
-        if (registro == null) {
-            mostrarMensajeError("Error al guardar", "El registro de la película no puede ser nulo.");
-            return;
-        }
-        try {
-            if (estado == EstadoCrud.CREAR) {
-                peliculaBean.create(registro);
-                mostrarMensaje("Registro creado con éxito.");
-            } else if (estado == EstadoCrud.MODIFICAR) {
-                peliculaBean.update(registro);
-                mostrarMensaje("Registro modificado con éxito.");
-            }
-            cargarRegistros();
-            limpiarFormulario();
-        } catch (Exception e) {
-            mostrarMensajeError("Error al guardar", "No se pudo guardar el registro.");
-            logger.log(Level.SEVERE, "Error al guardar la película", e);
-        }
-    }
 
-    public void eliminarRegistro(Integer idPelicula) {
-        if (idPelicula == null || idPelicula <= 0) {
-            mostrarMensajeError("Eliminación inválida", "El ID de la película es inválido.");
-            return;
-        }
-        try {
-            peliculaBean.delete(registro);
-            mostrarMensaje("Registro eliminado con éxito.");
-            cargarRegistros();
-        } catch (Exception e) {
-            mostrarMensajeError("Error al eliminar", "No se pudo eliminar el registro.");
-            logger.log(Level.SEVERE, "Error al eliminar la película", e);
-        }
-    }
-
-    public void buscarPorNombre() {
-        if (busquedaNombre == null || busquedaNombre.trim().isEmpty()) {
-            mostrarMensaje("El campo de búsqueda de nombre está vacío. Mostrando todos los registros.");
-            cargarRegistros();
-            return;
-        }
-        try {
-            registros = peliculaBean.findByName(busquedaNombre);
-            if (registros == null || registros.isEmpty()) {
-                registros = Collections.emptyList();
-                mostrarMensaje("No se encontraron resultados para el nombre proporcionado.");
-            }
-        } catch (Exception e) {
-            mostrarMensajeError("Error en la búsqueda", "No se pudo realizar la búsqueda por nombre.");
-            logger.log(Level.SEVERE, "Error al buscar películas por nombre", e);
-        }
-    }
-
-    public void buscarPorSinopsis() {
-        if (busquedaSinopsis == null || busquedaSinopsis.trim().isEmpty()) {
-            mostrarMensaje("El campo de búsqueda de sinopsis está vacío. Mostrando todos los registros.");
-            cargarRegistros();
-            return;
-        }
-        try {
-            registros = peliculaBean.findBySinopsis(busquedaSinopsis);
-            if (registros == null || registros.isEmpty()) {
-                registros = Collections.emptyList();
-                mostrarMensaje("No se encontraron resultados para la sinopsis proporcionada.");
-            }
-        } catch (Exception e) {
-            mostrarMensajeError("Error en la búsqueda", "No se pudo realizar la búsqueda por sinopsis.");
-            logger.log(Level.SEVERE, "Error al buscar películas por sinopsis", e);
-        }
-    }
-
-    private void limpiarFormulario() {
-        registro = null;
-        estado = EstadoCrud.NINGUNO;
-    }
-
-    private void mostrarMensaje(String mensaje) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(mensaje));
-    }
-
-    private void mostrarMensajeError(String titulo, String detalle) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, titulo, detalle));
-    }
-
-    // Getters y Setters
-
-    public List<Pelicula> getRegistros() {
-        return registros;
-    }
-
-    public Pelicula getRegistro() {
-        return registro;
-    }
-
-    public EstadoCrud getEstado() {
-        return estado;
-    }
-
-    public String getBusquedaNombre() {
-        return busquedaNombre;
-    }
-
-    public void setBusquedaNombre(String busquedaNombre) {
-        this.busquedaNombre = busquedaNombre;
-    }
-
-    public String getBusquedaSinopsis() {
-        return busquedaSinopsis;
-    }
-
-    public void setBusquedaSinopsis(String busquedaSinopsis) {
-        this.busquedaSinopsis = busquedaSinopsis;
+    @Override
+    public void btnCancelarHandler(ActionEvent actionEvent) {
+        frmPeliculaCarractreistica.estado=ESTADO_CRUD.NINGUNO;
+        frmPeliculaCarractreistica.registro=null;
+        super.btnCancelarHandler(actionEvent);
     }
 }

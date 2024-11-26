@@ -20,6 +20,11 @@ import java.util.List;
 @Named
 @RequestScoped
 public class frmReservaCliente extends AbstractFrm<Reserva> implements Serializable {
+    @Override
+    public String paginaNombre() {
+        return "REserva cliente";
+    }
+
     private TreeNode root;
     private TreeNode selectedNode;
     @Inject
@@ -49,36 +54,6 @@ public class frmReservaCliente extends AbstractFrm<Reserva> implements Serializa
     List<Sala> salasPOrSucursal;
     List<Asiento> AsientosPorSala;
     List<Programacion> programaciones;
-
-    @Override
-    public AbstractDataPersist<TipoSala> getDataAccess() {
-        return null;
-    }
-
-    @Override
-    public FacesContext getFacesContext() {
-        return null;
-    }
-
-    @Override
-    public String Rowkey(TipoSala object) {
-        return "";
-    }
-
-    @Override
-    public TipoSala RowData(String rowKey) {
-        return null;
-    }
-
-    @Override
-    public String getIdPorObjeto(TipoSala object) {
-        return "";
-    }
-
-    @Override
-    public TipoProducto getObjetoPorId(String id) {
-        return null;
-    }
 
     @Override
     public void instanciarRegistro() {
@@ -112,30 +87,17 @@ public class frmReservaCliente extends AbstractFrm<Reserva> implements Serializa
     }
 
     @Override
-    public Pelicula findByIdPelicula(String id) {
-        return null;
-    }
-
-    @Override
     public void selecionarFila(SelectEvent<Reserva> event) {
         registro=event.getObject();
         fc.addMessage(null,new FacesMessage("se ha escogido la reserva #:"+registro.getIdReserva()));
     }
 
     @Override
-    public String paginaNombre() {
-        return "";
-    }
+    public void inicioRegistros(){
+        root=new TreeNodeBuilder< Sucursal, Sala >(sucursalBean.getSucursalAnsSalas()).getRoot();
+        sucursales=sucursalBean.getAllSucursales();
 
-    /**
-     *  @Override
-     *     public void inicioRegistros(){
-     *         root=new TreeNodeBuilder< Sucursal, Sala >(sucursalBean.getSucursalAnsSalas()).getRoot();
-     *         sucursales=sucursalBean.getAllSucursales();
-     *
-     *     }
-     * @param event
-     */
+    }
 
     public void onNodeSelect(NodeSelectEvent event) {
         // Verificar si el nodo seleccionado es padre o hijo

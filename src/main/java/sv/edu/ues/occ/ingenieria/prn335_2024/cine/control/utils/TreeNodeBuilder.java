@@ -7,10 +7,9 @@ import sv.edu.ues.occ.ingenieria.prn335_2024.cine.entity.Sucursal;
 
 import java.util.List;
 
-public class TreeNodeBuilder<A, B> {
+public class TreeNodeBuilder <A,B>{
     private List<Object[]> listaDoble;
     private TreeNode root;
-
     public TreeNodeBuilder(List<Object[]> listaDoble) {
         this.listaDoble = listaDoble;
         root = new DefaultTreeNode("Root", null);

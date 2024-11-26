@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:hj="http://xmlns.jcp.org/jsf/html"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+
+<h:body>
+    <h:form>
+        <p:remoteCommand update="txtCuenta" name="actualizarCuenta"/>
+        <h:commandButton value="enviar mensaje " action="#{frmWebSocket.enviarMensaje}">
+            <h:outputText id="txtCuenta" value="cuenta actual #{frmWebSocket.cuenta}"/>
+            <f:ajax/>
+        </h:commandButton>
+        <f:websocket channel="chepe" onmessage="recibirMensaje"/>
+
+    </h:form>
+    <script type="text/javascript">
+        function recibirMensaje(mensaje,canal,evento){
+            console.log(mensaje)
+
+            actualizarCuenta();
+        }
+    </script>
+</h:body>
+</html>

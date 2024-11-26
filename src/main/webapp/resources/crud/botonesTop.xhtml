@@ -22,8 +22,8 @@
         />
         <cc:implementation>
             <h:panelGrid columns="#{cc.attrs.frm.estado!='NINGUNO'?'2':'1'}">
-                <p:commandButton value="CANCELAR" rendered="#{cc.attrs.frm.estado ne 'NINGUNO'}" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btnCancelarHandler}"/>
-                <p:commandButton value="NUEVO" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btnNuevoHandler}"/>
+                <p:commandButton value="#{abstractpffrm['abstractpffrm.cancel']} #{cc.attrs.frm.paginaNombre()}" rendered="#{cc.attrs.frm.estado ne 'NINGUNO'}" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btnCancelarHandler}"/>
+                <p:commandButton value="#{abstractpffrm['abstractpffrm.new']} #{cc.attrs.frm.paginaNombre()}" update="#{cc.attrs.actualizar}" actionListener="#{cc.attrs.frm.btnNuevoHandler}"/>
             </h:panelGrid>
         </cc:implementation>
     </cc:interface>
